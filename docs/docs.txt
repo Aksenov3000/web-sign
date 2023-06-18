@@ -31,3 +31,12 @@ TODO:
 У сертификата должны быть атрибуты - устройство и интерфейс (провайдер)
 Подумать про передачу настроек
 Подумать про именование переменных и классов, про неймспейсы
+
+
+Настройка проекта
+
+npm install --location=global npm@9.7.1
+npm install --location=global typescript
+
+PS D:\BigMuzzy\Projects\web-sign> tsc -p .\tsconfig.json
+PS D:\BigMuzzy\Projects\web-sign> node .\dist\core\index.js
