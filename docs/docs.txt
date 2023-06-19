@@ -40,3 +40,11 @@ npm install --location=global typescript
 
 PS D:\BigMuzzy\Projects\web-sign> tsc -p .\tsconfig.json
 PS D:\BigMuzzy\Projects\web-sign> node .\dist\core\index.js
+
+Сборка в один файл с учетом зависимостей и commonjs модулей:
+
+1) Простой package.json с модулями - ts, ts-loader, webpack, webpack-cli
+2) webpack.config.js
+3) Микроправки в коде
+PS D:\BigMuzzy\Projects\web-sign> npm run build
+PS D:\BigMuzzy\Projects\web-sign> node .\build\main-bundle.js

@@ -8,8 +8,8 @@ export default class webSignCryptoPro implements webSignInterface
 	private certificateList = new Map<string, webSignCertificate>();
 	private common = new webSignCommon();
 
-	private interval1: ReturnType<typeof setInterval> = 0;
-	private interval2: ReturnType<typeof setInterval> = 0;
+	private interval1: ReturnType<typeof setInterval> | number = 0;
+	private interval2: ReturnType<typeof setInterval> | number = 0;
 
 	public onCertificateAdd?: (certificate: webSignCertificate) => void;
 	public onCertificateRemove?: (certificate: webSignCertificate) => void;

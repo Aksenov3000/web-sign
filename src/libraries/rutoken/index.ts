@@ -8,8 +8,8 @@ export default class webSignRutoken implements webSignInterface
 	private certificateList = new Map<string, webSignCertificate>();
 	private common = new webSignCommon();
 
-	private interval1: number = 0;
-	private interval2: number = 0;
+	private interval1: ReturnType<typeof setInterval> | number = 0;
+	private interval2: ReturnType<typeof setInterval> | number = 0;
 
 	public onCertificateAdd?: (certificate: webSignCertificate) => void;
 	public onCertificateRemove?: (certificate: webSignCertificate) => void;
