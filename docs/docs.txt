@@ -48,3 +48,12 @@ PS D:\BigMuzzy\Projects\web-sign> node .\dist\core\index.js
 3) Микроправки в коде
 PS D:\BigMuzzy\Projects\web-sign> npm run build
 PS D:\BigMuzzy\Projects\web-sign> node .\build\main-bundle.js
+
+1) Простой package.json с модулями - ts, vite, vite-plugin-dts
+2) vite.config.ts (работает в режиме lib)
+3) package.json - build: "vite build"
+PS D:\BigMuzzy\Projects\web-sign> npm run build
+PS D:\BigMuzzy\Projects\web-sign> node .\build\index.js
+TODO: 
+    1) Не реагирует на имя файла в режиме lib
+    2) Убрать лишние опции из vite.config.ts
