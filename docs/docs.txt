@@ -39,7 +39,7 @@ npm install --location=global npm@9.7.1
 npm install --location=global typescript
 
 PS D:\BigMuzzy\Projects\web-sign> tsc -p .\tsconfig.json
-PS D:\BigMuzzy\Projects\web-sign> node .\dist\core\index.js
+PS D:\BigMuzzy\Projects\web-sign> node .\build\index.js
 
 Сборка в один файл с учетом зависимостей и commonjs модулей:
 
