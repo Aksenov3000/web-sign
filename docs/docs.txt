@@ -38,8 +38,8 @@ TODO:
 npm install --location=global npm@9.7.1
 npm install --location=global typescript
 
-PS D:\BigMuzzy\Projects\web-sign> tsc -p .\tsconfig.json
-PS D:\BigMuzzy\Projects\web-sign> node .\build\index.js
+tsc -p .\tsconfig.json
+node .\build\core\index.js
 
 Сборка в один файл с учетом зависимостей и commonjs модулей:
 
@@ -57,3 +57,5 @@ PS D:\BigMuzzy\Projects\web-sign> node .\build\index.js
 TODO: 
     1) Не реагирует на имя файла в режиме lib
     2) Убрать лишние опции из vite.config.ts
+
+https://dev.to/brifiction/npm-package-development-with-vite-4jc6

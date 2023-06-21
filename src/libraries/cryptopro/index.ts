@@ -1,6 +1,6 @@
 // include libraries
 import { webSignCertificate, webSignCommon, webSignError, webSignSignature, webSignInterface } from '../common/';
-
+import * as FriendCard from './cadesplugin_api';
 // main class
 export default class webSignCryptoPro implements webSignInterface
 {
@@ -10,6 +10,7 @@ export default class webSignCryptoPro implements webSignInterface
 
 	private interval1: ReturnType<typeof setInterval> | number = 0;
 	private interval2: ReturnType<typeof setInterval> | number = 0;
+	private a: boolean = FriendCard.a(1);
 
 	public onCertificateAdd?: (certificate: webSignCertificate) => void;
 	public onCertificateRemove?: (certificate: webSignCertificate) => void;
