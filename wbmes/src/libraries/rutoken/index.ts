@@ -1,5 +1,5 @@
 // include libraries
-import { webSignCertificate, webSignCommon, webSignError, webSignSignature, webSignInterface } from '../common/';
+import { webSignCertificate, webSignCommon, webSignError, webSignSignature, webSignInterface } from '../common/index';
 
 // main class
 export default class webSignRutoken implements webSignInterface

@@ -1,23 +1,4 @@
-export class webSignCommon
-{
-	
-}
-
-export class webSignCertificate
-{
-	public id: string;
-	public bodyBase64: string;
-	constructor(_id: string, _bodyBase64: string)
-	{
-		this.id = _id;
-		this.bodyBase64 = _bodyBase64;
-	}
-}
-
-export class webSignError
-{
-
-}
+import { webSignCertificate } from './webSignCertificate';
 
 export class webSignSignature
 {
@@ -34,5 +15,3 @@ export class webSignSignature
 		this.signatureBase64 = _signatureBase64;
 	}
 }
-
-export { webSignInterface } from './webSignInterface';

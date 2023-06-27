@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Vite + TS</title>
+</head>
+<body>
+	<table>
+		<tr>
+			<th>Динамика</th>
+			<th>Статика</th>
+			<th>Ошибки</th>
+		</tr>
+		<tr>
+			<td>
+				<textarea id="txDynCerts" style="width:300px; height:300px; scroll-behavior:auto"></textarea>
+			</td>
+			<td>
+				<textarea id="txStatCerts" style="width:300px; height:300px; scroll-behavior:auto"></textarea>
+			</td>
+			<td>
+				<textarea id="txErrors" style="width:300px; height:300px; scroll-behavior:auto"></textarea>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<button id="btStart" type="button">Старт</button>
+				<button id="btStop" type="button">Стоп</button>
+			</td>
+			<td>
+				<button id="btAquire" type="button">Получить</button>
+			</td>
+			<td></td>
+		</tr>
+	</table>
+	<div id="app"></div>
+	<script type="module" src="/src/index.ts"></script>
+	<script>
+		var ws = undefined;
+		window.addEventListener('load', (event) =>
+		{
+			ws = window.webSign;
+			ws.onCertificateAdd = function (certificate)
+			{
+				var tx = document.getElementById("txDynCerts");
+				tx.value = tx.value + "<br/>[" + certificate.id + "]";
+			};
+			ws.onError = function (error)
+			{
+				var tx = document.getElementById("txErrors");
+				tx.value = tx.value + "<br/>[" + error.message + "]";
+			};
+			ws.onCertificateRemove = function (certificate)
+			{
+				var tx = document.getElementById("txDynCerts");
+				tx.value = tx.value.replace("<br/>[" + certificate.id + "]", "");
+			};
+		});
+		document.getElementById("btStart").addEventListener('click', (event) =>
+		{
+			if (ws) ws.startCertificateScan();
+		});
+		document.getElementById("btStop").addEventListener('click', (event) =>
+		{
+			if (ws) ws.stopCertificateScan();
+		});
+	</script>
+</body>
+</html>

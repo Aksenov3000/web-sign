@@ -1,4 +1,4 @@
-import { webSignCertificate, webSignError, webSignSignature } from '../common/';
+import { webSignCertificate, webSignError, webSignSignature } from './index';
 
 export interface webSignInterface
 {

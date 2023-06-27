@@ -1,16 +1,16 @@
 // include libraries
-import { webSignCertificate, webSignCommon, webSignError, webSignSignature, webSignInterface } from '../common/';
-import * as FriendCard from './cadesplugin_api';
+import { webSignCertificate, webSignError, webSignSignature, webSignInterface } from '../common/index';
+//import * as CadesPluginApiDummy from './cadesplugin_api';
 // main class
 export default class webSignCryptoPro implements webSignInterface
 {
 	// certificate list.
-	private certificateList = new Map<string, webSignCertificate>();
-	private common = new webSignCommon();
+	//private certificateList = new Map<string, webSignCertificate>();
+	//private common = new webSignCommon();
 
 	private interval1: ReturnType<typeof setInterval> | number = 0;
 	private interval2: ReturnType<typeof setInterval> | number = 0;
-	private a: boolean = FriendCard.a(1);
+	//private a: boolean = CadesPluginApiDummy.a(1);
 
 	public onCertificateAdd?: (certificate: webSignCertificate) => void;
 	public onCertificateRemove?: (certificate: webSignCertificate) => void;
@@ -19,6 +19,7 @@ export default class webSignCryptoPro implements webSignInterface
 
 	constructor()
 	{
+		//let atrue:boolean = this.a;
 	}
 
 	public startCertificateScan()

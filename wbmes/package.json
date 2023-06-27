@@ -1,0 +1,20 @@
+{
+	"name": "wbmes",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"clean": "tsc --build --clean"
+	},
+	"devDependencies": {
+		"@microsoft/tsdoc": "^0.14.2",
+		"fast-glob": "^3.2.12",
+		"rollup-plugin-multi-input": "^1.4.1",
+		"ts-loader": "^9.4.3",
+		"vite": "^4.3.9",
+		"vite-plugin-dts": "^2.3.0"
+	}
+}

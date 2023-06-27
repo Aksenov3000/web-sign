@@ -1,6 +1,6 @@
-import { webSignCertificate, webSignError, webSignSignature, webSignInterface } from '../libraries/common/';
-import webSignCryptoPro from '../libraries/cryptopro/';
-import webSignRutoken from '../libraries/rutoken/';
+import { webSignCertificate, webSignError, webSignSignature, webSignInterface } from '../libraries/common/index';
+import webSignCryptoPro from '../libraries/cryptopro/index';
+import webSignRutoken from '../libraries/rutoken/index';
 
 /** Main web sign class */
 export default class webSign
@@ -137,16 +137,16 @@ export default class webSign
 	}
 }
 
-let t = new webSign();
-t.onCertificateAdd = (certificate: webSignCertificate) =>
-{
-	console.log("add " + certificate.id);
+//let t = new webSign();
+//t.onCertificateAdd = (certificate: webSignCertificate) =>
+//{
+//	console.log("add " + certificate.id);
 
-};
-t.onCertificateRemove = (certificate: webSignCertificate) =>
-{
-	console.log("remove " + certificate.id);
-};
-t.startCertificateScan();
+//};
+//t.onCertificateRemove = (certificate: webSignCertificate) =>
+//{
+//	console.log("remove " + certificate.id);
+//};
+//t.startCertificateScan();
 
 
