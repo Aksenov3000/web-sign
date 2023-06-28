@@ -788,4 +788,6 @@
     set_load_timeout();
     check_plugin_working();
 }());
-exports.a = (r) => true;
+
+export function tr(r) { return true; }
+export function fa(r) { return false; }

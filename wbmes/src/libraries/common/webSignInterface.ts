@@ -12,4 +12,6 @@ export interface webSignInterface
 	stopCertificateScan(): void;
 
 	signHash(certificate: webSignCertificate, algorithmOid: string, hashAsHex: string): void;
+
+	libraryName: string;
 }

@@ -10,4 +10,7 @@
   <ItemGroup>
     <Script Include="**" Exclude="*.esproj;**\node_modules\**;**\.git\**;**\.vs\**;**\.vscode\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Script Remove="src\libraries\cryptopro\cryptoProPluginInfo.ts" />
+  </ItemGroup>
 </Project>
