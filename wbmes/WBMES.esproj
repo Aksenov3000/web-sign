@@ -12,5 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <Script Remove="src\libraries\cryptopro\cryptoProPluginInfo.ts" />
+    <Script Remove="src\libraries\rutoken\rutoken-plugin.js" />
+    <Script Remove="src\libraries\rutoken\rutokenPluginInfo.ts" />
   </ItemGroup>
 </Project>
