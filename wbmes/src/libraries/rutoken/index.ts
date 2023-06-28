@@ -8,12 +8,13 @@ import { rutokenPluginInfo } from './rutokenPluginInfo';
 export default class webSignRutoken implements webSignInterface
 {
 	// certificate list.
-	private certificateList = new Map<string, webSignCertificate>();
+	private certificateList = new Map<number, webSignCertificate[]>();
 	private common = new webSignCommon();
 	public TRUE: boolean;
 	public FALSE: boolean;
 
 	private plugin: any = undefined;
+	private pluginFailed: boolean = false;
 	private rutokenWrap: any = undefined;
 	private pluginInfo: rutokenPluginInfo = new rutokenPluginInfo();
 
@@ -47,6 +48,7 @@ export default class webSignRutoken implements webSignInterface
 			if (!my.rutokenWrap) 
 			{
 				reject('Internal error. Rutoken оболочка не найдена');
+				my.pluginFailed = true;
 				return;
 			}
 
@@ -103,6 +105,7 @@ export default class webSignRutoken implements webSignInterface
 				// обработка ошибок этой цепочки промисов
 				.then(undefined, function (reason)
 				{
+					my.pluginFailed = true;
 					reject('Rutoken плагин не удалось загрузить - ' + reason);
 				});
 		});
@@ -110,7 +113,17 @@ export default class webSignRutoken implements webSignInterface
 
 	private deleteCertificatesFromDevice(device: number): void
 	{
+		let my = this;
 
+		let list: webSignCertificate[] = my.certificateList.get(device);
+		if (list === undefined) return;
+
+		list.forEach((cert) =>
+		{
+			if (my.onCertificateRemove) my.onCertificateRemove(cert);
+		});
+
+		my.certificateList.delete(device);
 	}
 
 	private enumDevices(plugin: any)
@@ -123,8 +136,6 @@ export default class webSignRutoken implements webSignInterface
 			.then(
 				(devices: rutokenDeviceEvents) =>
 				{
-					if (my.onError) my.onError(new webSignError('1000', 'Rutoken плагин - connected:' + devices.connected + ' disconnected:' + devices.disconnected, null));
-
 					// удалить из списка сертификатов (плюс события про удаление каждого)
 					devices.disconnected.forEach((d)=>my.deleteCertificatesFromDevice(d));
 
@@ -150,20 +161,30 @@ export default class webSignRutoken implements webSignInterface
 			{
 				certificates.forEach((c) =>
 				{
-					if (my.onCertificateAdd)
-						my.onCertificateAdd(new webSignCertificate(
-							my.libraryName + '|' + device + '|' + c,
-							"base64",
-							c,
-							new Date(),
-							new Date(),
-							'SubjectName',
-							'IssuerName',
-							false,
-							'cKeyAlgorithm.FriendlyName',
-							'cKeyAlgorithm.Value'
-						));
+					let thumbprint = c.toUpperCase().replace(/[:]/gi, '');
 
+					let cert: webSignCertificate = new webSignCertificate(
+						my.libraryName + '|' + device + '|' + thumbprint,
+						"base64",
+						thumbprint,
+						new Date(),
+						new Date(),
+						'SubjectName',
+						'IssuerName',
+						false,
+						'cKeyAlgorithm.FriendlyName',
+						'cKeyAlgorithm.Value'
+					);
+
+					let list: webSignCertificate[] = my.certificateList.get(device);
+					if (list === undefined)
+					{
+						list = [];
+						my.certificateList.set(device, list);
+					}
+					list.push(cert);
+
+					if (my.onCertificateAdd) my.onCertificateAdd(cert);
 				});
 			})
 			.catch((reason) =>
@@ -176,6 +197,9 @@ export default class webSignRutoken implements webSignInterface
 	{
 		let my = this;
 
+		my.pluginFailed = false;
+		my.plugin = undefined;
+
 		my.timerInterval = setInterval(() =>
 		{
 			my.getPlugin()
@@ -183,8 +207,9 @@ export default class webSignRutoken implements webSignInterface
 				.catch((reason) =>
 				{
 					if (my.onError) my.onError(new webSignError('1000', 'Rutoken плагин - ' + reason, null));
+					if (my.pluginFailed) clearInterval(my.timerInterval);
 				});
-		}, 1000);
+		}, 500);
 	}
 
 	public stopCertificateScan()

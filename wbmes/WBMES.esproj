@@ -7,6 +7,9 @@
     <JavaScriptTestRoot>src\</JavaScriptTestRoot>
     <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <LaunchJsonFolder>.vscode</LaunchJsonFolder>
+  </PropertyGroup>
   <ItemGroup>
     <Script Include="**" Exclude="*.esproj;**\node_modules\**;**\.git\**;**\.vs\**;**\.vscode\**" />
   </ItemGroup>
