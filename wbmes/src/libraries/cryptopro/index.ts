@@ -25,11 +25,15 @@ export default class webSignCryptoPro implements webSignInterface
 
 	constructor()
 	{
+		// Печальный Dependency Injection
 		this.TRUE = CadesPluginApiDummy.tr(1);
 		this.FALSE = CadesPluginApiDummy.fa(1);
 
-		(window as any).cadesplugin_skip_extension_install = true;
+		// ссылка на проинициализированный плагин для расширения
 		this.cadesplugin = (window as any).cadesplugin;
+
+		// выключаем функционал запроса на автоматическую установку расширения, если оно не найдено
+		(window as any).cadesplugin_skip_extension_install = true;
 	}
 
 	private getPluginInfo(next_function:()=>void):void
@@ -129,6 +133,7 @@ export default class webSignCryptoPro implements webSignInterface
 
 					let thumbprint: string = yield cert.Thumbprint;
 
+					if (my.onCertificateAdd)
 					my.onCertificateAdd(new webSignCertificate(
 						my.libraryName + '|' + deviceName + '|' + thumbprint,
 						yield cert.Export(my.cadesplugin.CADESCOM_ENCODE_BASE64),

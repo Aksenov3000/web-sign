@@ -1,4 +1,11 @@
-var rutoken = (function (my) {
+; (function ()
+{
+    //already loaded
+    if (window.rutoken)
+        return;
+
+    var rutoken = {};
+
     var loadCallbacks = [];
     var pluginMimeType = "application/x-rutoken-pki";
     var extension = window["C3B7563B-BF85-45B7-88FC-7CFF1BD3C2DB"];
@@ -24,10 +31,10 @@ var rutoken = (function (my) {
     }
 
     function initialize () {
-        my.ready = Promise.resolve(true);
-        my.isExtensionInstalled = returnPromise(Promise.resolve(false));
-        my.isPluginInstalled = returnPromise(Promise.resolve(true));
-        my.loadPlugin = loadPlugin;
+        rutoken.ready = Promise.resolve(true);
+        rutoken.isExtensionInstalled = returnPromise(Promise.resolve(false));
+        rutoken.isPluginInstalled = returnPromise(Promise.resolve(true));
+        rutoken.loadPlugin = loadPlugin;
         window.rutokenLoaded = onPluginLoaded;
     }
 
@@ -35,24 +42,24 @@ var rutoken = (function (my) {
         var readyPromise = extension.initialize().then(function () {
             return extension.isPluginInstalled();
         }).then(function (result) {
-            my.isExtensionInstalled = returnPromise(Promise.resolve(true));
-            my.isPluginInstalled = proxyMember(extension, "isPluginInstalled");
+            rutoken.isExtensionInstalled = returnPromise(Promise.resolve(true));
+            rutoken.isPluginInstalled = proxyMember(extension, "isPluginInstalled");
 
             if (result) {
                 pluginMimeType = "application/x-rutoken-plugin";
-                my.loadPlugin = loadChromePlugin;
+                rutoken.loadPlugin = loadChromePlugin;
             }
 
             return true;
         });
 
-        my.ready = readyPromise;
+        rutoken.ready = readyPromise;
     }
 
     function initializeWithoutPlugin () {
-        my.ready = Promise.resolve(true);
-        my.isExtensionInstalled = returnPromise(Promise.resolve(false));
-        my.isPluginInstalled = returnPromise(Promise.resolve(false));
+        rutoken.ready = Promise.resolve(true);
+        rutoken.isExtensionInstalled = returnPromise(Promise.resolve(false));
+        rutoken.isPluginInstalled = returnPromise(Promise.resolve(false));
     }
 
     function loadPlugin () {
@@ -217,12 +224,8 @@ var rutoken = (function (my) {
         }
     }
 
-    return my;
-}(rutoken || {}));
-
-if (typeof module !== 'undefined') {
-    module.exports = rutoken;
-}
+    window.rutoken = rutoken;
+}());
 
 export function tr(r) { return true; }
 export function fa(r) { return false; }
