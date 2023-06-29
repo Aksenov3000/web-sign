@@ -1,4 +1,4 @@
 export class rutokenPluginInfo
 {
-	public pluginVersion: string = '';
+	public pluginVersion = '';
 }

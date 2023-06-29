@@ -1,21 +1,20 @@
-// include libraries
-import { webSignCertificate, webSignCommon, webSignError, webSignSignature, webSignInterface } from '../common/index';
-import * as RutokenPluginApiDummy from './rutoken-plugin';
+import { webSignCertificate, webSignError, webSignSignature, webSignInterface } from '../common/index';
+import { getPlugin } from './rutoken-plugin';
 import { rutokenDeviceEvents } from './rutokenDeviceEvents';
+import { rutokenEnumerateDevicesOptions } from './rutokenEnumerateDevicesOptions';
+import { rutokenPluginClass } from './rutokenPluginClass';
 import { rutokenPluginInfo } from './rutokenPluginInfo';
+import { rutokenPluginWrap } from './rutokenPluginWrap';
 
-// main class
+/** webSignInterface implementation for Rutoken Plugin Adapter  */
 export default class webSignRutoken implements webSignInterface
 {
 	// certificate list.
 	private certificateList = new Map<number, webSignCertificate[]>();
-	private common = new webSignCommon();
-	public TRUE: boolean;
-	public FALSE: boolean;
 
-	private plugin: any = undefined;
-	private pluginFailed: boolean = false;
-	private rutokenWrap: any = undefined;
+	private plugin: rutokenPluginClass | undefined = undefined;
+	private pluginFailed = false;
+	private rutokenWrap: rutokenPluginWrap;
 	private pluginInfo: rutokenPluginInfo = new rutokenPluginInfo();
 
 	private timerInterval: ReturnType<typeof setInterval> | number = 0;
@@ -25,50 +24,42 @@ export default class webSignRutoken implements webSignInterface
 	public onError?: (error: webSignError) => void;
 	public onSignComplete?: (error: webSignSignature) => void;
 
-	public libraryName: string = "Rutoken";
-
-	public v: any = RutokenPluginApiDummy;
+	public libraryName = 'Rutoken';
 
 	constructor()
 	{
-		// Печальный Dependency Injection
-		this.TRUE = RutokenPluginApiDummy.tr(1);
-		this.FALSE = RutokenPluginApiDummy.fa(1);
-
 		// ссылка на обертку плагина и расширения
-		this.rutokenWrap = (window as any).rutoken;
+		this.rutokenWrap = getPlugin();
 	}
 
-	private getPlugin(): Promise<any>
+	private getPlugin(): Promise<rutokenPluginClass>
 	{
-		let my = this;
-
-		return new Promise<any>((resolve, reject) =>
+		return new Promise<rutokenPluginClass>((resolve, reject) =>
 		{
-			if (!my.rutokenWrap) 
+			if (!this.rutokenWrap) 
 			{
 				reject('Internal error. Rutoken оболочка не найдена');
-				my.pluginFailed = true;
+				this.pluginFailed = true;
 				return;
 			}
 
-			if (my.plugin)
+			if (this.plugin)
 			{
-				resolve(my.plugin);
+				resolve(this.plugin);
 				return;
 			}
 
 			// получаем промис загрузки оболочки
-			my.rutokenWrap.ready
+			this.rutokenWrap.ready
 				// ожидаем результата загрузки оболочки Рутокен (не расширения и не плагина, а только оболочки)
-				.then(function ()
+				.then(() =>
 				{
-					const isFirefox = !!(window as any).navigator.userAgent.match(/firefox/i) && !(window as any).navigator.userAgent.match(/seamonkey/i);
+					const isFirefox = !!window.navigator.userAgent.match(/firefox/i) && !window.navigator.userAgent.match(/seamonkey/i);
 
 					if ((window as any).chrome || isFirefox)
 					{
 						// для хрома и файерфокса возвращаем промис проверки установки расширения
-						return my.rutokenWrap.isExtensionInstalled();
+						return this.rutokenWrap.isExtensionInstalled();
 					}
 					else
 					{
@@ -77,35 +68,35 @@ export default class webSignRutoken implements webSignInterface
 					}
 				})
 				// ожидаем проверки установки расширения
-				.then(function (result)
+				.then((result) =>
 				{
 					// если расширение установлено, проверяем установку плаигна
-					if (result) return my.rutokenWrap.isPluginInstalled();
+					if (result) return this.rutokenWrap.isPluginInstalled();
 
 					// если расширение не установлено, сообщаем об этом
-					throw "Rutoken расширение не найдено";
+					throw 'Rutoken расширение не найдено';
 				})
 				// ожидаем проверки установки плагина
-				.then(function (result)
+				.then((result) =>
 				{
 					// если плагин установлен, загружаем его
-					if (result) return my.rutokenWrap.loadPlugin();
+					if (result) return this.rutokenWrap.loadPlugin();
 
 					// если плагин не установлен, сообщаем об этом
-					throw "Rutoken плагин не найден";
+					throw 'Rutoken плагин не найден';
 				})
 				// ожидаем запуска плагина
-				.then(function (plugin)
+				.then((plugin: rutokenPluginClass) =>
 				{
 					//Можно начинать работать с плагином
-					my.plugin = plugin;
-					my.pluginInfo.pluginVersion = plugin.version;
-					resolve(my.plugin);
+					this.plugin = plugin;
+					this.pluginInfo.pluginVersion = plugin.version;
+					resolve(this.plugin);
 				})
 				// обработка ошибок этой цепочки промисов
-				.then(undefined, function (reason)
+				.then(undefined, (reason) =>
 				{
-					my.pluginFailed = true;
+					this.pluginFailed = true;
 					reject('Rutoken плагин не удалось загрузить - ' + reason);
 				});
 		});
@@ -113,45 +104,39 @@ export default class webSignRutoken implements webSignInterface
 
 	private deleteCertificatesFromDevice(device: number): void
 	{
-		let my = this;
-
-		let list: webSignCertificate[] = my.certificateList.get(device);
+		const list: webSignCertificate[] = this.certificateList.get(device);
 		if (list === undefined) return;
 
 		list.forEach((cert) =>
 		{
-			if (my.onCertificateRemove) my.onCertificateRemove(cert);
+			if (this.onCertificateRemove) this.onCertificateRemove(cert);
 		});
 
-		my.certificateList.delete(device);
+		this.certificateList.delete(device);
 	}
 
-	private enumDevices(plugin: any)
+	private enumDevices(plugin: rutokenPluginClass)
 	{
-		let my = this;
-
 		// получаем все события по подключению и отключению токенов
-		plugin.enumerateDevices({ "mode": plugin.ENUMERATE_DEVICES_EVENTS })
+		plugin.enumerateDevices({ 'mode': plugin.ENUMERATE_DEVICES_EVENTS } as rutokenEnumerateDevicesOptions)
 			// получаем список присоединенных и отсоединенных токенов с момента последнего запроса
 			.then(
 				(devices: rutokenDeviceEvents) =>
 				{
 					// удалить из списка сертификатов (плюс события про удаление каждого)
-					devices.disconnected.forEach((d)=>my.deleteCertificatesFromDevice(d));
+					devices.disconnected.forEach((d)=>this.deleteCertificatesFromDevice(d));
 
 					// прочитать все сертификаты из добавленного устройства
-					devices.connected.forEach((c) => my.enumCertificates(plugin, c));
+					devices.connected.forEach((c) => this.enumCertificates(plugin, c));
 				},
 				(reason) =>
 				{
-					if (my.onError) my.onError(new webSignError('1000', 'Rutoken плагин - enumerateDevices - ' + reason, null));
+					if (this.onError) this.onError(new webSignError('1000', 'Rutoken плагин - enumerateDevices - ' + reason, null));
 				});
 	}
 
 	private enumCertificates(plugin: any, device: number)
 	{
-		let my = this;
-
 		// CERT_CATEGORY_USER
 		// CERT_CATEGORY_CA
 		// CERT_CATEGORY_OTHER
@@ -161,11 +146,11 @@ export default class webSignRutoken implements webSignInterface
 			{
 				certificates.forEach((c) =>
 				{
-					let thumbprint = c.toUpperCase().replace(/[:]/gi, '');
+					const thumbprint = c.toUpperCase().replace(/[:]/gi, '');
 
-					let cert: webSignCertificate = new webSignCertificate(
-						my.libraryName + '|' + device + '|' + thumbprint,
-						"base64",
+					const cert: webSignCertificate = new webSignCertificate(
+						this.libraryName + '|' + device + '|' + thumbprint,
+						'base64',
 						thumbprint,
 						new Date(),
 						new Date(),
@@ -176,52 +161,48 @@ export default class webSignRutoken implements webSignInterface
 						'cKeyAlgorithm.Value'
 					);
 
-					let list: webSignCertificate[] = my.certificateList.get(device);
+					let list: webSignCertificate[] = this.certificateList.get(device);
 					if (list === undefined)
 					{
 						list = [];
-						my.certificateList.set(device, list);
+						this.certificateList.set(device, list);
 					}
 					list.push(cert);
 
-					if (my.onCertificateAdd) my.onCertificateAdd(cert);
+					if (this.onCertificateAdd) this.onCertificateAdd(cert);
 				});
 			})
 			.catch((reason) =>
 			{
-				if (my.onError) my.onError(new webSignError('1000', 'Rutoken плагин - ' + reason, null));
+				if (this.onError) this.onError(new webSignError('1000', 'Rutoken плагин - ' + reason, null));
 			});
 	}
 
 	public startCertificateScan()
 	{
-		let my = this;
+		this.pluginFailed = false;
+		this.plugin = undefined;
 
-		my.pluginFailed = false;
-		my.plugin = undefined;
-
-		my.timerInterval = setInterval(() =>
+		this.timerInterval = setInterval(() =>
 		{
-			my.getPlugin()
-				.then((plugin) => my.enumDevices(plugin))
+			this.getPlugin()
+				.then((plugin) => this.enumDevices(plugin))
 				.catch((reason) =>
 				{
-					if (my.onError) my.onError(new webSignError('1000', 'Rutoken плагин - ' + reason, null));
-					if (my.pluginFailed) clearInterval(my.timerInterval);
+					if (this.onError) this.onError(new webSignError('1000', 'Rutoken плагин - ' + reason, null));
+					if (this.pluginFailed) clearInterval(this.timerInterval);
 				});
 		}, 500);
 	}
 
 	public stopCertificateScan()
 	{
-		let my = this;
-
-		clearInterval(my.timerInterval);
+		clearInterval(this.timerInterval);
 	}
 
 	public signHash(certificate: webSignCertificate, algorithmOid: string, hashAsHex: string)
 	{
 		// save result
-		if (this.onSignComplete) this.onSignComplete(new webSignSignature(certificate, algorithmOid, hashAsHex, "Signature ru"));
+		if (this.onSignComplete) this.onSignComplete(new webSignSignature(certificate, algorithmOid, hashAsHex, 'Signature ru'));
 	}
 }

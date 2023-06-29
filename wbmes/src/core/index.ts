@@ -56,47 +56,47 @@ export default class webSign
 	constructor()
 	{
 		// register CryptoPro
-		let cp = new webSignCryptoPro();
+		const cp = new webSignCryptoPro();
 		cp.onCertificateAdd = (certificate: webSignCertificate) =>
 		{
 			this.certificateList.set(certificate.id, certificate);
 			if (this.onCertificateAdd) this.onCertificateAdd(certificate);
-		}
+		};
 		cp.onCertificateRemove = (certificate: webSignCertificate) =>
 		{
 			this.certificateList.delete(certificate.id);
 			if (this.onCertificateRemove) this.onCertificateRemove(certificate);
-		}
+		};
 		cp.onError = (error: webSignError) =>
 		{
 			if (this.onError) this.onError(error);
-		}
+		};
 		cp.onSignComplete = (signature: webSignSignature) =>
 		{
 			if (this.onSignComplete) this.onSignComplete(signature);
-		}
+		};
 		this.libraryInstances.add(cp);
 
 		// register Rutoken
-		let rt = new webSignRutoken();
+		const rt = new webSignRutoken();
 		rt.onCertificateAdd = (certificate: webSignCertificate) =>
 		{
 			this.certificateList.set(certificate.id, certificate);
 			if (this.onCertificateAdd) this.onCertificateAdd(certificate);
-		}
+		};
 		rt.onCertificateRemove = (certificate: webSignCertificate) =>
 		{
 			this.certificateList.delete(certificate.id);
 			if (this.onCertificateRemove) this.onCertificateRemove(certificate);
-		}
+		};
 		rt.onError = (error: webSignError) =>
 		{
 			if (this.onError) this.onError(error);
-		}
+		};
 		rt.onSignComplete = (signature: webSignSignature) =>
 		{
 			if (this.onSignComplete) this.onSignComplete(signature);
-		}
+		};
 		this.libraryInstances.add(rt);
 	}
 
@@ -133,7 +133,7 @@ export default class webSign
 	public signHash(certificate: webSignCertificate, algorithmOid: string, hashAsHex: string): void
 	{
 		// save result
-		if (this.onSignComplete) this.onSignComplete(new webSignSignature(certificate, algorithmOid, hashAsHex, "Signature core"));
+		if (this.onSignComplete) this.onSignComplete(new webSignSignature(certificate, algorithmOid, hashAsHex, 'Signature core'));
 	}
 }
 

@@ -1,6 +1,6 @@
 export class cryptoProPluginInfo
 {
-	public pluginVersion: string='';
-	public cspVersion: string='';
-	public cspName: string='';
+	public pluginVersion='';
+	public cspVersion='';
+	public cspName='';
 }

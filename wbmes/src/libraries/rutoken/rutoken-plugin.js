@@ -1,3 +1,8 @@
+export function getPlugin()
+{
+    return window.rutoken;
+}
+
 ; (function ()
 {
     //already loaded
@@ -226,6 +231,3 @@
 
     window.rutoken = rutoken;
 }());
-
-export function tr(r) { return true; }
-export function fa(r) { return false; }
