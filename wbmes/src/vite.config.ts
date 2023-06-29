@@ -1,11 +1,9 @@
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
-
-export default defineConfig(({ command, mode }) =>
+/** Configuration file for ViteJs */
+export default defineConfig(({ command }) =>
 {
-	console.log("defineConfig - " + command);
-
 	if (command === 'serve')
 	{
 		// command === 'serve'
@@ -16,7 +14,7 @@ export default defineConfig(({ command, mode }) =>
 				port: 5173,
 				strictPort: true
 			}
-		}
+		};
 	}
 	else
 	{
@@ -31,12 +29,12 @@ export default defineConfig(({ command, mode }) =>
 					entry: ['src/core/index.ts'],
 					name: 'web-sign',
 					formats: ['cjs'],
-					fileName: (format) => `index.js`
+					fileName: () => 'index.js'
 				},
 				outDir: 'build',
 				emptyOutDir: true,
 			},
 			plugins: [dts()]
-		}
+		};
 	}
 });

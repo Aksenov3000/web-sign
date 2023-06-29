@@ -18,7 +18,16 @@
     <Script Include="**" Exclude="*.esproj;**\node_modules\**;**\.git\**;**\.vs\**;**\.vscode\**" />
   </ItemGroup>
   <ItemGroup>
+    <Script Remove=".eslintignore" />
+    <Script Remove=".eslintrc.json" />
+    <Script Remove="src\libraries\cryptopro\cadesPluginClass.ts" />
+    <Script Remove="src\libraries\cryptopro\cadesplugin_api.js" />
     <Script Remove="src\libraries\cryptopro\cryptoProPluginInfo.ts" />
+    <Script Remove="src\libraries\cryptopro\IAbout3.ts" />
+    <Script Remove="src\libraries\cryptopro\ICertificate.ts" />
+    <Script Remove="src\libraries\cryptopro\ICertificates.ts" />
+    <Script Remove="src\libraries\cryptopro\IStore.ts" />
+    <Script Remove="src\libraries\cryptopro\IVersion.ts" />
     <Script Remove="src\libraries\rutoken\rutoken-plugin.js" />
     <Script Remove="src\libraries\rutoken\rutokenDeviceEvents.ts" />
     <Script Remove="src\libraries\rutoken\rutokenPluginInfo.ts" />

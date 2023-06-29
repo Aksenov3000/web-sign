@@ -1,18 +1,21 @@
-// include libraries
 import { webSignCertificate, webSignError, webSignSignature, webSignInterface } from '../common/index';
-import * as CadesPluginApiDummy from './cadesplugin_api';
+import { IAbout3 } from './IAbout3';
+import { IVersion } from './IVersion';
+import { cadesPluginClass } from './cadesPluginClass';
+import { getPlugin } from './cadesplugin_api';
 import { cryptoProPluginInfo } from './cryptoProPluginInfo';
+import { IStore } from './IStore';
+import { ICertificates } from './ICertificates';
+import { ICertificate } from './ICertificate';
 
-// main class
+/** webSignInterface implementation for CryptoPro Extension for CAdES Browser Plug-in  */
 export default class webSignCryptoPro implements webSignInterface
 {
 	// certificate list.
 	//private certificateList = new Map<string, webSignCertificate>();
 	//private common = new webSignCommon();
-	public TRUE: boolean;
-	public FALSE: boolean;
 
-	private cadesplugin: any;
+	private cadesplugin: cadesPluginClass;
 	private pluginInfo: cryptoProPluginInfo = new cryptoProPluginInfo();
 
 	public onCertificateAdd?: (certificate: webSignCertificate) => void;
@@ -20,61 +23,49 @@ export default class webSignCryptoPro implements webSignInterface
 	public onError?: (error: webSignError) => void;
 	public onSignComplete?: (error: webSignSignature) => void;
 
-	public libraryName: string = "CryptoPro";
+	public libraryName = 'CryptoPro';
 
 
 	constructor()
 	{
-		// Печальный Dependency Injection
-		this.TRUE = CadesPluginApiDummy.tr(1);
-		this.FALSE = CadesPluginApiDummy.fa(1);
-
-		// ссылка на проинициализированный плагин для расширения
-		this.cadesplugin = (window as any).cadesplugin;
-
-		// выключаем функционал запроса на автоматическую установку расширения, если оно не найдено
-		(window as any).cadesplugin_skip_extension_install = true;
+		this.cadesplugin = getPlugin();
 	}
 
 	private getPluginInfo(next_function:()=>void):void
 	{
-		let my = this;
-
-		if (!my.cadesplugin)
+		if (!this.cadesplugin)
 		{
-			if (my.onError) my.onError(new webSignError('1000', 'Плагин не найден', null));
+			if (this.onError) this.onError(new webSignError('1000', 'Плагин не найден', null));
 			return;
 		}
-		my.cadesplugin.then(function ()
-		{
-			my.cadesplugin.async_spawn(function* ()
+		this.cadesplugin.then(
+			async () => // fullfilled
 			{
 				try
 				{
 					// собираем информацию о плагине
-					var oAbout = yield my.cadesplugin.CreateObjectAsync("CAdESCOM.About");
+					const oAbout: IAbout3 = await this.cadesplugin.CreateObjectAsync('CAdESCOM.About');
 
 					// версия плагина
-					var ver = yield oAbout.PluginVersion;
-					my.pluginInfo.pluginVersion = (yield ver.MajorVersion) + "." + (yield ver.MinorVersion) + "." + (yield ver.BuildVersion);
+					let ver: IVersion = await oAbout.PluginVersion;
+					this.pluginInfo.pluginVersion = (await ver.MajorVersion) + '.' + (await ver.MinorVersion) + '.' + (await ver.BuildVersion);
 
 					// версия CSP
-					ver = yield oAbout.CSPVersion("", 80);
-					my.pluginInfo.cspVersion = (yield ver.MajorVersion) + "." + (yield ver.MinorVersion) + "." + (yield ver.BuildVersion);
-					try { my.pluginInfo.cspName = yield oAbout.CSPName(80); } catch (e) { my.pluginInfo.cspName = ""; }
+					ver = await oAbout.CSPVersion('', 80);
+					this.pluginInfo.cspVersion = (await ver.MajorVersion) + '.' + (await ver.MinorVersion) + '.' + (await ver.BuildVersion);
+					try { this.pluginInfo.cspName = await oAbout.CSPName(80); } catch (e) { this.pluginInfo.cspName = ''; }
 
 					// вызываем следующую функцию в цепочке
 					if (next_function) next_function();
 				}
 				catch (ex)
 				{
-					if (my.onError) my.onError(new webSignError('1001', 'Получение информации о плагине', ex));
+					if (this.onError) this.onError(new webSignError('1001', 'Получение информации о плагине', ex));
 				}
-			});
-		},
-			function (ex)
+			},
+			(ex) => // rejected
 			{
-				if (my.onError) my.onError(new webSignError('1002', 'Проверка плагина не удалась', ex));
+				if (this.onError) this.onError(new webSignError('1002', 'Проверка плагина не удалась', ex));
 			}
 		);
 	}
@@ -82,90 +73,85 @@ export default class webSignCryptoPro implements webSignInterface
 
 	public startCertificateScan()
 	{
-		let my = this;
-		if (!my.onCertificateAdd) return;
+		if (!this.onCertificateAdd) return;
 
-		my.cadesplugin.then(function ()
-		{
-			my.getPluginInfo(()=>my.getCertificateList());
-		},
-			function (ex)
+		this.cadesplugin.then(
+			() => // fullfilled
 			{
-				if (my.onError) my.onError(new webSignError('1002', 'Проверка плагина не удалась', ex));
+				this.getPluginInfo(() => this.getCertificateList());
+			},
+			(reason) => // rejected
+			{
+				if (this.onError) this.onError(new webSignError('1002', 'Проверка плагина не удалась', reason));
 			}
 		);
 	}
 
-	private getCertificateList():void
+	private async getCertificateList()
 	{
-		let my = this;
-		my.cadesplugin.async_spawn(function* ()
+		const deviceName = 'CryptoApi';
+		let oStore:IStore | undefined = undefined;
+		let stage_message = '';
+
+		try
 		{
-			let deviceName = 'CryptoApi';
-			let oStore: any = null;
-			let stage_message: string = '';
+			stage_message = 'Ошибка при открытии хранилища: ';
+			oStore = await this.cadesplugin.CreateObjectAsync('CAdESCOM.Store');
+			if (!oStore) throw 'Объект или свойство не найдено. (0x80092004)';
+			await oStore.Open();
 
-			try
+			stage_message = 'Ошибка при получении коллекции сертификатов: ';
+			const certs: ICertificates = await oStore.Certificates;
+			if (!certs) throw 'Объект или свойство не найдено. (0x80092004)';
+
+			stage_message = 'Ошибка при определении количества сертификатов: ';
+			const certCnt = await certs.Count;
+			// Если сертификатов нет, то дальше делать нечего
+			if (certCnt === 0) return;
+
+			for (let i = 1; i <= certCnt; i++)
 			{
-				stage_message = "Ошибка при открытии хранилища: ";
-				oStore = yield my.cadesplugin.CreateObjectAsync("CAdESCOM.Store");
-				if (!oStore) throw "Объект или свойство не найдено. (0x80092004)";
-				yield oStore.Open();
+				stage_message = 'Ошибка при перечислении сертификатов: ';
+				const cert: ICertificate = await certs.Item(i);
 
-				stage_message = "Ошибка при получении коллекции сертификатов: ";
-				let certs:any = yield oStore.Certificates;
-				if (!certs) throw "Объект или свойство не найдено. (0x80092004)";
+				stage_message = 'Ошибка при получении свойств сертификата: ';
+				const PublicKeyAlgorithm = await (await cert.PublicKey()).Algorithm;
 
-				stage_message = "Ошибка при определении количества сертификатов: ";
-				let certCnt:any = yield certs.Count;
-				if (certCnt === null) throw "Объект или свойство не найдено. (0x80092004)";
+				const thumbprint: string = await cert.Thumbprint;
 
-				// Если сертификатов нет, то дальше делать нечего
-				if (certCnt === 0) return;
-
-				for (var i = 1; i <= certCnt; i++)
-				{
-					stage_message = "Ошибка при перечислении сертификатов: ";
-					let cert:any = yield certs.Item(i);
-
-					stage_message = "Ошибка при получении свойств сертификата: ";
-					let PublicKeyAlgorithm = yield (yield cert.PublicKey()).Algorithm;
-
-					let thumbprint: string = yield cert.Thumbprint;
-
-					if (my.onCertificateAdd)
-					my.onCertificateAdd(new webSignCertificate(
-						my.libraryName + '|' + deviceName + '|' + thumbprint,
-						yield cert.Export(my.cadesplugin.CADESCOM_ENCODE_BASE64),
+				if (this.onCertificateAdd)
+					this.onCertificateAdd(new webSignCertificate(
+						this.libraryName + '|' + deviceName + '|' + thumbprint,
+						await cert.Export(this.cadesplugin.CADESCOM_ENCODE_BASE64),
 						thumbprint,
-						new Date(yield cert.ValidFromDate),
-						new Date(yield cert.ValidToDate),
-						yield cert.SubjectName,
-						yield cert.IssuerName,
-						yield cert.HasPrivateKey(),
-						yield PublicKeyAlgorithm.FriendlyName,
-						yield PublicKeyAlgorithm.Value
+						new Date(await cert.ValidFromDate),
+						new Date(await cert.ValidToDate),
+						await cert.SubjectName,
+						await cert.IssuerName,
+						await cert.HasPrivateKey(),
+						await PublicKeyAlgorithm.FriendlyName,
+						await PublicKeyAlgorithm.Value
 					));
-				}
 			}
-			catch (ex)
-			{
-				if (my.onError) my.onError(new webSignError('1003', stage_message, ex));
-			}
-			finally
-			{
-				if (oStore) yield oStore.Close();
-			}
-		});
+		}
+		catch (ex)
+		{
+			if (this.onError) this.onError(new webSignError('1003', stage_message, ex));
+		}
+		finally
+		{
+			if (oStore) await oStore.Close();
+		}
 	}
 
 	public stopCertificateScan()
 	{
+		// do nothing
 	}
 
 	public signHash(certificate: webSignCertificate, algorithmOid: string, hashAsHex: string)
 	{
 		// save result
-		if (this.onSignComplete) this.onSignComplete(new webSignSignature(certificate, algorithmOid, hashAsHex, "Signature cp"));
+		if (this.onSignComplete) this.onSignComplete(new webSignSignature(certificate, algorithmOid, hashAsHex, 'Signature cp'));
 	}
 }

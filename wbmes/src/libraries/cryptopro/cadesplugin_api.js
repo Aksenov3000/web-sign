@@ -1,4 +1,13 @@
-;(function () {
+// выключаем функционал запроса на автоматическую установку расширения, если оно не найдено
+window.cadesplugin_skip_extension_install = true;
+
+export function getPlugin()
+{
+    return window.cadesplugin;
+}
+
+; (function ()
+{
     //already loaded
     if(window.cadesplugin)
         return;
@@ -788,6 +797,3 @@
     set_load_timeout();
     check_plugin_working();
 }());
-
-export function tr(r) { return true; }
-export function fa(r) { return false; }
