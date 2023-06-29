@@ -6,6 +6,10 @@
     <StartupCommand>set BROWSER=none&amp;&amp;yarn dev</StartupCommand>
     <JavaScriptTestRoot>src\</JavaScriptTestRoot>
     <JavaScriptTestFramework>Jest</JavaScriptTestFramework>
+    <BuildCommand>yarn build</BuildCommand>
+    <ProductionBuildCommand>yarn prod</ProductionBuildCommand>
+    <BuildOutputFolder>build</BuildOutputFolder>
+    <CleanCommand>yarn clean</CleanCommand>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LaunchJsonFolder>.vscode</LaunchJsonFolder>
