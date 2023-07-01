@@ -24,12 +24,12 @@
     <Script Remove="src\libraries\common\IWebSignCertificate.ts" />
     <Script Remove="src\libraries\common\IWebSignLog.ts" />
     <Script Remove="src\libraries\common\IWebSignSignature.ts" />
-    <Script Remove="src\libraries\common\WebSignCertificate_.ts" />
+    <Script Remove="src\libraries\common\WebSignCertificate.ts" />
     <Script Remove="src\libraries\common\WebSignLog.ts" />
     <Script Remove="src\libraries\common\WebSignLogEnum.ts" />
     <Script Remove="src\libraries\common\WebSignLogLevelEnum.ts" />
     <Script Remove="src\libraries\common\WebSignLogMessages.ts" />
-    <Script Remove="src\libraries\common\WebSignSignature_.ts" />
+    <Script Remove="src\libraries\common\WebSignSignature.ts" />
     <Script Remove="src\libraries\cryptopro\cadesPluginClass.ts" />
     <Script Remove="src\libraries\cryptopro\cadesplugin_api.js" />
     <Script Remove="src\libraries\cryptopro\cryptoProPluginInfo.ts" />
