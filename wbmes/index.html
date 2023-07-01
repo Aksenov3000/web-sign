@@ -41,11 +41,11 @@
 		var ws = undefined;
 		window.addEventListener('load', (event) =>
 		{
-			ws = window.webSign;
+			ws = window.WebSign;
 			if (!ws)
 			{
 				var tx = document.getElementById("txErrors");
-				tx.value = tx.value + "\n[webSign is empty]";
+				tx.value = tx.value + "\nWebSign do not installed";
 				return;
 			}
             ws.OnCertificateAdd.subscribe((certificate, eventManagement) =>
@@ -54,10 +54,17 @@
 				tx.value = tx.value + "\n[" + certificate.id + "]";
 				eventManagement.propogationStopped = false;
 			});
-            ws.OnLog.subscribe((error) =>
+            ws.OnLog.subscribe((log) =>
 			{
+				var level = "undefined";
+				switch (log.Level) {
+					case 1: level = "Debug"; break;
+                    case 2: level = "Warning"; break;
+                    case 3: level = "Error"; break;
+				}
+                var mess = log.Library + "-" + level + "-" + window.WebSignLogMessages.Language.get("ru").get(log.Code) + (log.Exception ? " - " + log.Exception : "");
 				var tx = document.getElementById("txErrors");
-				tx.value = tx.value + "\n[" + error.message + "]";
+                tx.value = tx.value + "\n" + mess;
 			});
             ws.OnCertificateRemove.subscribe((certificate) =>
 			{

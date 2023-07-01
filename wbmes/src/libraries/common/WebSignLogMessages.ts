@@ -6,19 +6,19 @@ export class WebSignLogMessages
 		[
 			['ru', new Map(
 				[
-					[WebSignLogEnum.PluginNotFound, 'Плагин не найден'],
-					[WebSignLogEnum.CreatePluginObject, 'Создаем объект плагина'],
-					[WebSignLogEnum.GetPluginVersion, 'Получаем версию плагина'],
-					[WebSignLogEnum.GetCSPVersion, 'Получаем версию CSP'],
-					[WebSignLogEnum.UnexpectedException, 'Непредвиденная ошибка'],
-					[WebSignLogEnum.LoadPluginObject, 'Загрузка объекта плагина'],
-					[WebSignLogEnum.OpenCertificateStore, 'Открываем хранилище сертификатов'],
-					[WebSignLogEnum.GetCertificateListFromStore, 'Получаем коллекцию сертификатов из хранилища'],
-					[WebSignLogEnum.GetCertificateCountFromStore, 'Получаем размер коллекции сертификатов из хранилища'],
-					[WebSignLogEnum.EnumCertificatesInStore, 'Перечисляем коллекцию сертификатов из хранилища'],
-					[WebSignLogEnum.GetCertificateFromStore, 'Получаем сертификат из хранилища'],
-					[WebSignLogEnum.EnumDevices, 'Перечисляем устройства'],
-					[WebSignLogEnum.EnumCertificatesInDevice, 'Перечисляем коллекцию сертификатов из устройства'],
+					[WebSignLogEnum.PluginNotFound, 'РџР»Р°РіРёРЅ РЅРµ РЅР°Р№РґРµРЅ'],
+					[WebSignLogEnum.CreatePluginObject, 'РЎРѕР·РґР°РµРј РѕР±СЉРµРєС‚ РїР»Р°РіРёРЅР°'],
+					[WebSignLogEnum.GetPluginVersion, 'РџРѕР»СѓС‡Р°РµРј РІРµСЂСЃРёСЋ РїР»Р°РіРёРЅР°'],
+					[WebSignLogEnum.GetCSPVersion, 'РџРѕР»СѓС‡Р°РµРј РІРµСЂСЃРёСЋ CSP'],
+					[WebSignLogEnum.UnexpectedException, 'РќРµРїСЂРµРґРІРёРґРµРЅРЅР°СЏ РѕС€РёР±РєР°'],
+					[WebSignLogEnum.LoadPluginObject, 'Р—Р°РіСЂСѓР·РєР° РѕР±СЉРµРєС‚Р° РїР»Р°РіРёРЅР°'],
+					[WebSignLogEnum.OpenCertificateStore, 'РћС‚РєСЂС‹РІР°РµРј С…СЂР°РЅРёР»РёС‰Рµ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ'],
+					[WebSignLogEnum.GetCertificateListFromStore, 'РџРѕР»СѓС‡Р°РµРј РєРѕР»Р»РµРєС†РёСЋ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ РёР· С…СЂР°РЅРёР»РёС‰Р°'],
+					[WebSignLogEnum.GetCertificateCountFromStore, 'РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂ РєРѕР»Р»РµРєС†РёРё СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ РёР· С…СЂР°РЅРёР»РёС‰Р°'],
+					[WebSignLogEnum.EnumCertificatesInStore, 'РџРµСЂРµС‡РёСЃР»СЏРµРј РєРѕР»Р»РµРєС†РёСЋ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ РёР· С…СЂР°РЅРёР»РёС‰Р°'],
+					[WebSignLogEnum.GetCertificateFromStore, 'РџРѕР»СѓС‡Р°РµРј СЃРµСЂС‚РёС„РёРєР°С‚ РёР· С…СЂР°РЅРёР»РёС‰Р°'],
+					[WebSignLogEnum.EnumDevices, 'РџРµСЂРµС‡РёСЃР»СЏРµРј СѓСЃС‚СЂРѕР№СЃС‚РІР°'],
+					[WebSignLogEnum.EnumCertificatesInDevice, 'РџРµСЂРµС‡РёСЃР»СЏРµРј РєРѕР»Р»РµРєС†РёСЋ СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ РёР· СѓСЃС‚СЂРѕР№СЃС‚РІР°'],
 				])],
 			['en', new Map(
 				[

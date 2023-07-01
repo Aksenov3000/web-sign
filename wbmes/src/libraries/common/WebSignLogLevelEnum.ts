@@ -1,6 +1,6 @@
 export enum WebSignLogLevelEnum
 {
-	Debug,
-	Warning,
-	Error
+	Debug=1,
+	Warning=2,
+	Error=3
 }

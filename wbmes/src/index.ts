@@ -1,3 +1,5 @@
-import webSign from './core/index';
+import WebSign from './core/index';
+import { WebSignLogMessages } from './libraries/common/WebSignLogMessages';
 
-window['webSign'] = new webSign();
+window['WebSign'] = new WebSign();
+window['WebSignLogMessages'] = new WebSignLogMessages();
