@@ -1257,6 +1257,18 @@ sprintf-js@~1.0.2:
   resolved "https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.0.3.tgz"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
 
+ste-core@^3.0.8:
+  version "3.0.8"
+  resolved "https://registry.npmjs.org/ste-core/-/ste-core-3.0.8.tgz"
+  integrity sha512-OnJfg9CvvZw1kX64sNOTw9UwgygH/29e96ZKQudBMmmxsQvYSFxlYZXDov++agkOFx7KLDaII9J1LrvTZjPikA==
+
+ste-simple-events@^3.0.9:
+  version "3.0.9"
+  resolved "https://registry.npmjs.org/ste-simple-events/-/ste-simple-events-3.0.9.tgz"
+  integrity sha512-3csCGgu1fu0yGpVxAx4G4UYo6YLZ+E36t0j+fFAFGGIEZM3MIgjf6MowIqQ+KF+ry5GoN8t+nRBXW4oOtxO4cg==
+  dependencies:
+    ste-core "^3.0.8"
+
 string-argv@~0.3.1:
   version "0.3.2"
   resolved "https://registry.npmjs.org/string-argv/-/string-argv-0.3.2.tgz"

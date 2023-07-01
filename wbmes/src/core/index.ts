@@ -1,117 +1,103 @@
-import { webSignCertificate, webSignError, webSignSignature, webSignInterface } from '../libraries/common/index';
-import webSignCryptoPro from '../libraries/cryptopro/index';
-import webSignRutoken from '../libraries/rutoken/index';
+import { SimpleEventDispatcher } from 'ste-simple-events';
+import { IWebSign, IWebSignLog } from '../libraries/common/index';
+import { IWebSignCertificate } from '../libraries/common/IWebSignCertificate';
+import { IWebSignSignature } from '../libraries/common/IWebSignSignature';
+import { WebSignSignature } from '../libraries/common/WebSignSignature';
+import { WebSignCryptoPro }  from '../libraries/cryptopro/index';
+import { WebSignRutoken }  from '../libraries/rutoken/index';
 
 /** Main web sign class */
-export default class webSign
+export default class WebSign
 {
 	/** Internal list of available certificates */
-	private certificateList = new Map<string, webSignCertificate>();
+	private CertificateList = new Map<string, IWebSignCertificate>();
 
 	/** Internal list of modules */
-	private libraryInstances = new Set<webSignInterface>();
+	private LibraryInstances = new Set<IWebSign>();
+
+	/** Internal event on Certificate Add */
+	private _OnCertificateAdd = new SimpleEventDispatcher<IWebSignCertificate>();
+
+	/** Internal event on Certificate Remove */
+	private _OnCertificateRemove = new SimpleEventDispatcher<IWebSignCertificate>();
+
+	/** Internal event on Error */
+	private _OnLog = new SimpleEventDispatcher<IWebSignLog>();
 
 	/** 
 		*  Event. New certificate is available
 		* @remarks 
 		* This event occurs when modules found new available certificate for sign.
-	  * Works after call to startCertificateScan.
-		*
-		* @param certificate Information about new certificate
+		* Works after call to startCertificateScan.
 	*/
-	public onCertificateAdd?: (certificate: webSignCertificate) => void;
+	public get OnCertificateAdd() { return this._OnCertificateAdd.asEvent(); }
 
 	/**
 		*  Event. Certificate is now unavailable.
 		*
 		* @remarks
 		* This event occurs when modules detect certificate removal.
-	  * Works after call to startCertificateScan.
-		*
-		* @param certificate Information about removed certificate
+		* Works after call to startCertificateScan.
 	*/
-	public onCertificateRemove?: (certificate: webSignCertificate) => void;
+	public get OnCertificateRemove() { return this._OnCertificateRemove.asEvent(); }
 
 	/**
-		*  Event. Common error in any function.
+		*  Event. Common loger transport.
 		*
 		* @remarks
-		* This event occurs when any error occurs.
-		*
-		* @param certificate Information about error
+		* This event occurs when any log occurs.
 	*/
-	public onError?: (error: webSignError) => void;
-
-	/**
-		*  Event. Sign is completed.
-		*
-		* @remarks
-		* This event occurs when sign hash completes and produce signature.
-		*
-		* @param certificate Information about signature
-	*/
-	public onSignComplete?: (signature: webSignSignature) => void;
+	public get OnLog() { return this._OnLog.asEvent(); }
 
 	/** Constructor creates objects for all modules and subscribe for all its events. */
 	constructor()
 	{
 		// register CryptoPro
-		const cp = new webSignCryptoPro();
-		cp.onCertificateAdd = (certificate: webSignCertificate) =>
+		const cp = new WebSignCryptoPro();
+		cp.OnCertificateAdd.subscribe((certificate) =>
 		{
-			this.certificateList.set(certificate.id, certificate);
-			if (this.onCertificateAdd) this.onCertificateAdd(certificate);
-		};
-		cp.onCertificateRemove = (certificate: webSignCertificate) =>
+			this.CertificateList.set(certificate.id, certificate);
+			this._OnCertificateAdd.dispatch(certificate);
+		});
+		cp.OnCertificateRemove.subscribe((certificate) =>
 		{
-			this.certificateList.delete(certificate.id);
-			if (this.onCertificateRemove) this.onCertificateRemove(certificate);
-		};
-		cp.onError = (error: webSignError) =>
-		{
-			if (this.onError) this.onError(error);
-		};
-		cp.onSignComplete = (signature: webSignSignature) =>
-		{
-			if (this.onSignComplete) this.onSignComplete(signature);
-		};
-		this.libraryInstances.add(cp);
+			this.CertificateList.delete(certificate.id);
+			this._OnCertificateRemove.dispatch(certificate);
+		});
+		cp.OnLog.subscribe((error) => this._OnLog.dispatch(error));
+		this.LibraryInstances.add(cp);
 
 		// register Rutoken
-		const rt = new webSignRutoken();
-		rt.onCertificateAdd = (certificate: webSignCertificate) =>
+		const rt = new WebSignRutoken();
+		rt.OnCertificateAdd.subscribe((certificate) =>
 		{
-			this.certificateList.set(certificate.id, certificate);
-			if (this.onCertificateAdd) this.onCertificateAdd(certificate);
-		};
-		rt.onCertificateRemove = (certificate: webSignCertificate) =>
+			this.CertificateList.set(certificate.id, certificate);
+			this._OnCertificateAdd.dispatch(certificate);
+		});
+		rt.OnCertificateRemove.subscribe((certificate) =>
 		{
-			this.certificateList.delete(certificate.id);
-			if (this.onCertificateRemove) this.onCertificateRemove(certificate);
-		};
-		rt.onError = (error: webSignError) =>
+			this.CertificateList.delete(certificate.id);
+			this._OnCertificateRemove.dispatch(certificate);
+		});
+		rt.OnLog.subscribe((error) =>
 		{
-			if (this.onError) this.onError(error);
-		};
-		rt.onSignComplete = (signature: webSignSignature) =>
-		{
-			if (this.onSignComplete) this.onSignComplete(signature);
-		};
-		this.libraryInstances.add(rt);
+			this._OnLog.dispatch(error);
+		});
+		this.LibraryInstances.add(rt);
 	}
 
 	/** Start searching for available certificates. */
 	public startCertificateScan():void
 	{
 		// subsequently start searching in all modules
-		this.libraryInstances.forEach((ws) => ws.startCertificateScan());
+		this.LibraryInstances.forEach((ws) => ws.StartCertificateScan());
 	}
 
 	/** Stop searching for available certificates. */
 	public stopCertificateScan(): void
 	{
 		// subsequently stop searching in all modules
-		this.libraryInstances.forEach((ws) => ws.stopCertificateScan());
+		this.LibraryInstances.forEach((ws) => ws.StopCertificateScan());
 	}
 
 	/**
@@ -130,23 +116,13 @@ export default class webSign
 		* @example
 		* for oid 1.2.643.7.1.1.2.2 - 00557be5e584fd52a449b16b0251d05d27f94ab76cbaa6da890b59d8ef1e159d
 		*/
-	public signHash(certificate: webSignCertificate, algorithmOid: string, hashAsHex: string): void
+	public signHash(certificate: IWebSignCertificate, algorithmOid: string, hashAsHex: string): Promise<IWebSignSignature>
 	{
-		// save result
-		if (this.onSignComplete) this.onSignComplete(new webSignSignature(certificate, algorithmOid, hashAsHex, 'Signature core'));
+		return new Promise<IWebSignSignature>((resolve, reject) =>
+		{
+			if (!this.CertificateList) reject('dummy error');
+			resolve(new WebSignSignature(certificate, algorithmOid, hashAsHex, 'Signature core'));
+			return;
+		});
 	}
 }
-
-//let t = new webSign();
-//t.onCertificateAdd = (certificate: webSignCertificate) =>
-//{
-//	console.log("add " + certificate.id);
-
-//};
-//t.onCertificateRemove = (certificate: webSignCertificate) =>
-//{
-//	console.log("remove " + certificate.id);
-//};
-//t.startCertificateScan();
-
-

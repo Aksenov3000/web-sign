@@ -48,21 +48,22 @@
 				tx.value = tx.value + "\n[webSign is empty]";
 				return;
 			}
-			ws.onCertificateAdd = function (certificate)
+            ws.OnCertificateAdd.subscribe((certificate, eventManagement) =>
 			{
 				var tx = document.getElementById("txDynCerts");
 				tx.value = tx.value + "\n[" + certificate.id + "]";
-			};
-			ws.onError = function (error)
+				eventManagement.propogationStopped = false;
+			});
+            ws.OnLog.subscribe((error) =>
 			{
 				var tx = document.getElementById("txErrors");
 				tx.value = tx.value + "\n[" + error.message + "]";
-			};
-			ws.onCertificateRemove = function (certificate)
+			});
+            ws.OnCertificateRemove.subscribe((certificate) =>
 			{
 				var tx = document.getElementById("txDynCerts");
 				tx.value = tx.value.replace("\n[" + certificate.id + "]", "");
-			};
+			});
 		});
 		document.getElementById("btStart").addEventListener('click', (event) =>
 		{

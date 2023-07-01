@@ -1,4 +1,6 @@
-export class webSignCertificate
+import { IWebSignCertificate } from './IWebSignCertificate';
+
+export class WebSignCertificate implements IWebSignCertificate
 {
 	public id: string;
 	public bodyBase64: string;

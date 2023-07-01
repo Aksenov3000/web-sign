@@ -1,17 +1,18 @@
-import { webSignCertificate } from './webSignCertificate';
+import { IWebSignCertificate } from './IWebSignCertificate';
+import { IWebSignSignature } from './IWebSignSignature';
 
-export class webSignSignature
+export class WebSignSignature implements IWebSignSignature
 {
-	public certificate: webSignCertificate;
-	public algorithmOid: string;
-	public hashAsHex: string;
-	public signatureBase64: string;
+	public Certificate: IWebSignCertificate;
+	public AlgorithmOid: string;
+	public HashAsHex: string;
+	public SignatureBase64: string;
 
-	constructor(_certificate: webSignCertificate, _algorithmOid: string, _hashAsHex: string, _signatureBase64: string)
+	constructor(certificate: IWebSignCertificate, algorithmOid: string, hashAsHex: string, signatureBase64: string)
 	{
-		this.certificate = _certificate;
-		this.algorithmOid = _algorithmOid;
-		this.hashAsHex = _hashAsHex;
-		this.signatureBase64 = _signatureBase64;
+		this.Certificate = certificate;
+		this.AlgorithmOid = algorithmOid;
+		this.HashAsHex = hashAsHex;
+		this.SignatureBase64 = signatureBase64;
 	}
 }

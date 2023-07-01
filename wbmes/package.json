@@ -18,5 +18,8 @@
 		"rollup-plugin-multi-input": "^1.4.1",
 		"vite": "^4.3.9",
 		"vite-plugin-dts": "^2.3.0"
+	},
+	"dependencies": {
+		"ste-simple-events": "^3.0.9"
 	}
 }
