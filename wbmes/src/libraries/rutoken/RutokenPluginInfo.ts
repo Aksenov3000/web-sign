@@ -1,4 +1,4 @@
-export class rutokenPluginInfo
+export class RutokenPluginInfo
 {
 	public pluginVersion = '';
 }

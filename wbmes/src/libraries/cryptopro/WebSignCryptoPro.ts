@@ -1,9 +1,9 @@
 import { WebSignCertificate, WebSignSignature, IWebSign, WebSignLogEnum, IWebSignLog } from '../common/index';
 import { IAbout3 } from './IAbout3';
 import { IVersion } from './IVersion';
-import { cadesPluginClass } from './cadesPluginClass';
+import { CadesPluginClass } from './CadesPluginClass';
 import { getPlugin } from './cadesplugin_api';
-import { cryptoProPluginInfo } from './cryptoProPluginInfo';
+import { CryptoProPluginInfo } from './CryptoProPluginInfo';
 import { IStore } from './IStore';
 import { ICertificates } from './ICertificates';
 import { ICertificate } from './ICertificate';
@@ -28,8 +28,8 @@ export class WebSignCryptoPro implements IWebSign
 	/** Internal event on Error */
 	private _OnLog = new SimpleEventDispatcher<IWebSignLog>();
 
-	private CadesPlugin: cadesPluginClass;
-	private PluginInfo: cryptoProPluginInfo = new cryptoProPluginInfo();
+	private CadesPlugin: CadesPluginClass;
+	private PluginInfo: CryptoProPluginInfo = new CryptoProPluginInfo();
 
 	public LibraryName = 'CryptoPro';
 

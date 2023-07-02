@@ -5,11 +5,11 @@ import { IWebSignSignature } from '../common/IWebSignSignature';
 import { WebSignLogLevelEnum } from '../common/WebSignLogLevelEnum';
 import { WebSignSignature } from '../common/WebSignSignature';
 import { getPlugin } from './rutoken-plugin';
-import { rutokenDeviceEvents } from './rutokenDeviceEvents';
-import { rutokenEnumerateDevicesOptions } from './rutokenEnumerateDevicesOptions';
+import { RutokenDeviceEvents } from './RutokenDeviceEvents';
+import { RutokenEnumerateDevicesOptions } from './RutokenEnumerateDevicesOptions';
 import { RutokenPluginClass } from './RutokenPluginClass';
-import { rutokenPluginInfo } from './rutokenPluginInfo';
-import { rutokenPluginWrap } from './rutokenPluginWrap';
+import { RutokenPluginInfo } from './RutokenPluginInfo';
+import { RutokenPluginWrap } from './RutokenPluginWrap';
 
 /** IWebSign implementation for Rutoken Plugin Adapter  */
 export class WebSignRutoken implements IWebSign
@@ -29,8 +29,8 @@ export class WebSignRutoken implements IWebSign
 
 	private Plugin: RutokenPluginClass | undefined = undefined;
 	private PluginFailed = false;
-	private RutokenWrap: rutokenPluginWrap;
-	private PluginInfo: rutokenPluginInfo = new rutokenPluginInfo();
+	private RutokenWrap: RutokenPluginWrap;
+	private PluginInfo: RutokenPluginInfo = new RutokenPluginInfo();
 
 	private TimerInterval: ReturnType<typeof setInterval> | number = 0;
 
@@ -159,10 +159,10 @@ export class WebSignRutoken implements IWebSign
 	{
 		this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.EnumDevices);
 		// получаем все события по подключению и отключению токенов
-		plugin.enumerateDevices({ 'mode': plugin.ENUMERATE_DEVICES_EVENTS } as rutokenEnumerateDevicesOptions)
+		plugin.enumerateDevices({ 'mode': plugin.ENUMERATE_DEVICES_EVENTS } as RutokenEnumerateDevicesOptions)
 			// получаем список присоединенных и отсоединенных токенов с момента последнего запроса
 			.then(
-				(devices: rutokenDeviceEvents) =>
+				(devices: RutokenDeviceEvents) =>
 				{
 					// удалить из списка сертификатов (плюс события про удаление каждого)
 					devices.disconnected.forEach((d)=>this.DeleteCertificatesFromDevice(d));

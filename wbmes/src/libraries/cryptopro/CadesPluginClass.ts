@@ -1,4 +1,4 @@
-export interface cadesPluginClass extends Promise<void>
+export interface CadesPluginClass extends Promise<void>
 {
 	async_spawn(generatorFunc): void;
 	CreateObjectAsync(name: string);

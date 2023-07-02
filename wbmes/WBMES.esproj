@@ -30,9 +30,9 @@
     <Script Remove="src\libraries\common\WebSignLogLevelEnum.ts" />
     <Script Remove="src\libraries\common\WebSignLogMessages.ts" />
     <Script Remove="src\libraries\common\WebSignSignature.ts" />
-    <Script Remove="src\libraries\cryptopro\CadesPluginClass_.ts" />
+    <Script Remove="src\libraries\cryptopro\CadesPluginClass.ts" />
     <Script Remove="src\libraries\cryptopro\cadesplugin_api.js" />
-    <Script Remove="src\libraries\cryptopro\CryptoProPluginInfo_.ts" />
+    <Script Remove="src\libraries\cryptopro\CryptoProPluginInfo.ts" />
     <Script Remove="src\libraries\cryptopro\IAbout3.ts" />
     <Script Remove="src\libraries\cryptopro\ICertificate.ts" />
     <Script Remove="src\libraries\cryptopro\ICertificates.ts" />
@@ -40,11 +40,12 @@
     <Script Remove="src\libraries\cryptopro\IVersion.ts" />
     <Script Remove="src\libraries\cryptopro\WebSignCryptoPro.ts" />
     <Script Remove="src\libraries\rutoken\rutoken-plugin.js" />
-    <Script Remove="src\libraries\rutoken\RutokenDeviceEvents_.ts" />
-    <Script Remove="src\libraries\rutoken\RutokenEnumerateDevicesOptions_.ts" />
-    <Script Remove="src\libraries\rutoken\RutokenPluginClass_.ts" />
-    <Script Remove="src\libraries\rutoken\RutokenPluginInfo_.ts" />
-    <Script Remove="src\libraries\rutoken\RutokenPluginWrap_.ts" />
+    <Script Remove="src\libraries\rutoken\RutokenDeviceEvents.ts" />
+    <Script Remove="src\libraries\rutoken\RutokenEnumerateDevicesEnum.ts" />
+    <Script Remove="src\libraries\rutoken\RutokenEnumerateDevicesOptions.ts" />
+    <Script Remove="src\libraries\rutoken\RutokenPluginClass.ts" />
+    <Script Remove="src\libraries\rutoken\RutokenPluginInfo.ts" />
+    <Script Remove="src\libraries\rutoken\RutokenPluginWrap.ts" />
     <Script Remove="src\libraries\rutoken\WebSignRutoken.ts" />
   </ItemGroup>
 </Project>

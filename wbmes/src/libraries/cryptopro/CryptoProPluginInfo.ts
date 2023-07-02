@@ -1,4 +1,4 @@
-export class cryptoProPluginInfo
+export class CryptoProPluginInfo
 {
 	public pluginVersion='';
 	public cspVersion='';
