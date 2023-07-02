@@ -1,7 +1,7 @@
 import { rutokenDeviceEvents } from './rutokenDeviceEvents';
 import { rutokenEnumerateDevicesOptions } from './rutokenEnumerateDevicesOptions';
 
-export interface rutokenPluginClass extends Promise<void>
+export interface RutokenPluginClass extends Promise<void>
 {
 	version: string;
 	enumerateDevices(options: rutokenEnumerateDevicesOptions): Promise<rutokenDeviceEvents>;

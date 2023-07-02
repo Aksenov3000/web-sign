@@ -7,7 +7,7 @@ import { WebSignSignature } from '../common/WebSignSignature';
 import { getPlugin } from './rutoken-plugin';
 import { rutokenDeviceEvents } from './rutokenDeviceEvents';
 import { rutokenEnumerateDevicesOptions } from './rutokenEnumerateDevicesOptions';
-import { rutokenPluginClass } from './rutokenPluginClass';
+import { RutokenPluginClass } from './RutokenPluginClass';
 import { rutokenPluginInfo } from './rutokenPluginInfo';
 import { rutokenPluginWrap } from './rutokenPluginWrap';
 
@@ -27,7 +27,7 @@ export class WebSignRutoken implements IWebSign
 	private _OnLog = new SimpleEventDispatcher<IWebSignLog>();
 
 
-	private Plugin: rutokenPluginClass | undefined = undefined;
+	private Plugin: RutokenPluginClass | undefined = undefined;
 	private PluginFailed = false;
 	private RutokenWrap: rutokenPluginWrap;
 	private PluginInfo: rutokenPluginInfo = new rutokenPluginInfo();
@@ -72,13 +72,13 @@ export class WebSignRutoken implements IWebSign
 		this._OnLog.dispatchAsync(new WebSignLog(this.LibraryName, level, type, exception));
 	}
 
-	private getPlugin(): Promise<rutokenPluginClass>
+	private getPlugin(): Promise<RutokenPluginClass>
 	{
-		return new Promise<rutokenPluginClass>((resolve, reject) =>
+		return new Promise<RutokenPluginClass>((resolve, reject) =>
 		{
 			if (!this.RutokenWrap) 
 			{
-				reject('Internal error. Rutoken оболочка не найдена');
+				reject('Internal error. Rutoken wrap not found');
 				this.PluginFailed = true;
 				return;
 			}
@@ -114,7 +114,7 @@ export class WebSignRutoken implements IWebSign
 					if (result) return this.RutokenWrap.isPluginInstalled();
 
 					// если расширение не установлено, сообщаем об этом
-					throw 'Rutoken расширение не найдено';
+					throw 'Rutoken extension not found';
 				})
 				// ожидаем проверки установки плагина
 				.then((result) =>
@@ -123,10 +123,10 @@ export class WebSignRutoken implements IWebSign
 					if (result) return this.RutokenWrap.loadPlugin();
 
 					// если плагин не установлен, сообщаем об этом
-					throw 'Rutoken плагин не найден';
+					throw 'Rutoken plagin not found';
 				})
 				// ожидаем запуска плагина
-				.then((plugin: rutokenPluginClass) =>
+				.then((plugin: RutokenPluginClass) =>
 				{
 					//Можно начинать работать с плагином
 					this.Plugin = plugin;
@@ -137,7 +137,7 @@ export class WebSignRutoken implements IWebSign
 				.then(undefined, (reason) =>
 				{
 					this.PluginFailed = true;
-					reject('Rutoken плагин не удалось загрузить - ' + reason);
+					reject('Rutoken plugin failed to load - ' + reason);
 				});
 		});
 	}
@@ -155,7 +155,7 @@ export class WebSignRutoken implements IWebSign
 		this.CertificateList.delete(device);
 	}
 
-	private EnumDevices(plugin: rutokenPluginClass)
+	private EnumDevices(plugin: RutokenPluginClass)
 	{
 		this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.EnumDevices);
 		// получаем все события по подключению и отключению токенов
@@ -176,7 +176,7 @@ export class WebSignRutoken implements IWebSign
 				});
 	}
 
-	private EnumCertificates(plugin: any, device: number)
+	private EnumCertificates(plugin: RutokenPluginClass, device: number)
 	{
 		this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.EnumCertificatesInStore);
 		// CERT_CATEGORY_USER
