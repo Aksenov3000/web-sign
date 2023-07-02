@@ -4,7 +4,7 @@ import { IWebSignCertificate } from '../common/IWebSignCertificate';
 import { IWebSignSignature } from '../common/IWebSignSignature';
 import { WebSignLogLevelEnum } from '../common/WebSignLogLevelEnum';
 import { WebSignSignature } from '../common/WebSignSignature';
-import { getPlugin } from './rutoken-plugin';
+import { getRutokenWrap } from './rutoken-plugin';
 import { RutokenDeviceEvents } from './RutokenDeviceEvents';
 import { RutokenEnumerateDevicesOptions } from './RutokenEnumerateDevicesOptions';
 import { RutokenPluginClass } from './RutokenPluginClass';
@@ -26,9 +26,7 @@ export class WebSignRutoken implements IWebSign
 	/** Internal event on Error */
 	private _OnLog = new SimpleEventDispatcher<IWebSignLog>();
 
-
 	private Plugin: RutokenPluginClass | undefined = undefined;
-	private PluginFailed = false;
 	private RutokenWrap: RutokenPluginWrap;
 	private PluginInfo: RutokenPluginInfo = new RutokenPluginInfo();
 
@@ -61,10 +59,11 @@ export class WebSignRutoken implements IWebSign
 	*/
 	public get OnLog() { return this._OnLog.asEvent(); }
 
+	/** Main constructor */
 	constructor()
 	{
-		// ссылка на обертку плагина и расширения
-		this.RutokenWrap = getPlugin();
+		// get plugin wrapper
+		this.RutokenWrap = getRutokenWrap();
 	}
 
 	private Log(level: WebSignLogLevelEnum, type: WebSignLogEnum, exception?)
@@ -72,20 +71,15 @@ export class WebSignRutoken implements IWebSign
 		this._OnLog.dispatchAsync(new WebSignLog(this.LibraryName, level, type, exception));
 	}
 
-	private getPlugin(): Promise<RutokenPluginClass>
+	/** Promise to start working with this class */
+	public get Ready(): Promise<void>
 	{
-		return new Promise<RutokenPluginClass>((resolve, reject) =>
+		return new Promise<void>((resolve, reject) =>
 		{
-			if (!this.RutokenWrap) 
+			if (!this.RutokenWrap)
 			{
-				reject('Internal error. Rutoken wrap not found');
-				this.PluginFailed = true;
-				return;
-			}
-
-			if (this.Plugin)
-			{
-				resolve(this.Plugin);
+				this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.WrapNotFound);
+				reject('Rutoken plugin wrapper not found');
 				return;
 			}
 
@@ -131,13 +125,13 @@ export class WebSignRutoken implements IWebSign
 					//Можно начинать работать с плагином
 					this.Plugin = plugin;
 					this.PluginInfo.pluginVersion = plugin.version;
-					resolve(this.Plugin);
+					resolve();
 				})
 				// обработка ошибок этой цепочки промисов
-				.then(undefined, (reason) =>
+				.then(undefined, (ex) =>
 				{
-					this.PluginFailed = true;
-					reject('Rutoken plugin failed to load - ' + reason);
+					this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.LoadPluginObject, ex);
+					reject('Rutoken plugin failed to load - ' + ex);
 				});
 		});
 	}
@@ -155,20 +149,20 @@ export class WebSignRutoken implements IWebSign
 		this.CertificateList.delete(device);
 	}
 
-	private EnumDevices(plugin: RutokenPluginClass)
+	private EnumDevices()
 	{
 		this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.EnumDevices);
 		// получаем все события по подключению и отключению токенов
-		plugin.enumerateDevices({ 'mode': plugin.ENUMERATE_DEVICES_EVENTS } as RutokenEnumerateDevicesOptions)
+		this.Plugin.enumerateDevices({ 'mode': this.Plugin.ENUMERATE_DEVICES_EVENTS } as RutokenEnumerateDevicesOptions)
 			// получаем список присоединенных и отсоединенных токенов с момента последнего запроса
 			.then(
 				(devices: RutokenDeviceEvents) =>
 				{
 					// удалить из списка сертификатов (плюс события про удаление каждого)
-					devices.disconnected.forEach((d)=>this.DeleteCertificatesFromDevice(d));
+					devices.disconnected.forEach((d) => this.DeleteCertificatesFromDevice(d));
 
 					// прочитать все сертификаты из добавленного устройства
-					devices.connected.forEach((c) => this.EnumCertificates(plugin, c));
+					devices.connected.forEach((c) => this.EnumCertificates(c));
 				},
 				(ex) =>
 				{
@@ -176,42 +170,56 @@ export class WebSignRutoken implements IWebSign
 				});
 	}
 
-	private EnumCertificates(plugin: RutokenPluginClass, device: number)
+	private EnumCertificates(device: number)
 	{
 		this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.EnumCertificatesInStore);
 		// CERT_CATEGORY_USER
 		// CERT_CATEGORY_CA
 		// CERT_CATEGORY_OTHER
 		// CERT_CATEGORY_UNSPEC
-		plugin.enumerateCertificates(device, plugin.CERT_CATEGORY_USER)
-			.then((certificates:string[]) =>
+		this.Plugin.enumerateCertificates(device, this.Plugin.CERT_CATEGORY_USER)
+			.then((certificates: string[]) =>
 			{
 				certificates.forEach((c) =>
 				{
 					const thumbprint = c.toUpperCase().replace(/[:]/gi, '');
 
-					const cert: IWebSignCertificate = new WebSignCertificate(
-						this.LibraryName + '|' + device + '|' + thumbprint,
-						'base64',
-						thumbprint,
-						new Date(),
-						new Date(),
-						'SubjectName',
-						'IssuerName',
-						false,
-						'cKeyAlgorithm.FriendlyName',
-						'cKeyAlgorithm.Value'
-					);
+					let certBody = '';
+					this.Plugin.getCertificate(device, c).then(
+						(base64cert) =>
+						{
+							certBody = base64cert;
+							const cert: IWebSignCertificate = new WebSignCertificate(
+								this.LibraryName + '|' + device + '|' + thumbprint,
+								this.LibraryName,
+								device.toString(),
+								certBody,
+								thumbprint,
+								new Date(),
+								new Date(),
+								'SubjectName',
+								'IssuerName',
+								false,
+								'cKeyAlgorithm.FriendlyName',
+								'cKeyAlgorithm.Value'
+							);
 
-					let list: WebSignCertificate[] = this.CertificateList.get(device);
-					if (list === undefined)
-					{
-						list = [];
-						this.CertificateList.set(device, list);
-					}
-					list.push(cert);
+							let list: WebSignCertificate[] = this.CertificateList.get(device);
+							if (list === undefined)
+							{
+								list = [];
+								this.CertificateList.set(device, list);
+							}
+							list.push(cert);
 
-					this._OnCertificateAdd.dispatchAsync(cert);
+							this._OnCertificateAdd.dispatchAsync(cert);
+
+						})
+						.catch(
+							(ex) =>
+							{
+								this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.UnexpectedException, ex);
+							});
 				});
 			})
 			.catch((ex) =>
@@ -222,19 +230,12 @@ export class WebSignRutoken implements IWebSign
 
 	public StartCertificateScan()
 	{
-		this.PluginFailed = false;
-		this.Plugin = undefined;
-
-		this.TimerInterval = setInterval(() =>
+		if (!this.Plugin)
 		{
-			this.getPlugin()
-				.then((plugin) => this.EnumDevices(plugin))
-				.catch((ex) =>
-				{
-					this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.UnexpectedException, ex);
-					if (this.PluginFailed) clearInterval(this.TimerInterval);
-				});
-		}, 500);
+			this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.LoadPluginObject);
+			return;
+		}
+		this.TimerInterval = setInterval(() => this.EnumDevices(), 500);
 	}
 
 	public StopCertificateScan()

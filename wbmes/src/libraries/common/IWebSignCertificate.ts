@@ -1,13 +1,15 @@
 export interface IWebSignCertificate
 {
-	id: string;
-	bodyBase64: string;
-	thumbprint: string;
-	validFromDate: Date;
-	validToDate: Date;
-	subjectName: string;
-	issuerName: string;
-	hasPrivateKey: boolean;
-	publicKey_Algorithm_FriendlyName: string;
-	publicKey_Algorithm_OID: string;
+	Id: string;
+	Library: string;
+	Device: string;
+	BodyBase64: string;
+	Thumbprint: string;
+	ValidFromDate: Date;
+	ValidToDate: Date;
+	SubjectName: string;
+	IssuerName: string;
+	HasPrivateKey: boolean;
+	PublicKey_Algorithm_FriendlyName: string;
+	PublicKey_Algorithm_OID: string;
 }

@@ -19,6 +19,7 @@ export class WebSignLogMessages
 					[WebSignLogEnum.GetCertificateFromStore, 'Получаем сертификат из хранилища'],
 					[WebSignLogEnum.EnumDevices, 'Перечисляем устройства'],
 					[WebSignLogEnum.EnumCertificatesInDevice, 'Перечисляем коллекцию сертификатов из устройства'],
+					[WebSignLogEnum.WrapNotFound, 'Обертка плагина не найдена'],
 				])],
 			['en', new Map(
 				[
@@ -35,6 +36,7 @@ export class WebSignLogMessages
 					[WebSignLogEnum.GetCertificateFromStore, 'Get One Certificate From Store'],
 					[WebSignLogEnum.EnumDevices, 'Enum Devices'],
 					[WebSignLogEnum.EnumCertificatesInDevice, 'Enum Certificates In device'],
+					[WebSignLogEnum.WrapNotFound, 'Plugin wrapper not found'],
 				])],
 		]);
 }

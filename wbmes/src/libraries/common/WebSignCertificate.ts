@@ -2,11 +2,23 @@ import { IWebSignCertificate } from './IWebSignCertificate';
 
 export class WebSignCertificate implements IWebSignCertificate
 {
-	public id: string;
-	public bodyBase64: string;
+	public Id: string;
+	public Library: string;
+	public Device: string;
+	public BodyBase64: string;
+	public Thumbprint: string;
+	public ValidFromDate: Date;
+	public ValidToDate: Date;
+	public SubjectName: string;
+	public IssuerName: string;
+	public HasPrivateKey: boolean;
+	public PublicKey_Algorithm_FriendlyName: string;
+	public PublicKey_Algorithm_OID: string;
 
 	constructor(
 		id: string,
+		library: string,
+		device: string,
 		bodyBase64: string,
 		thumbprint: string,
 		validFromDate: Date,
@@ -17,24 +29,17 @@ export class WebSignCertificate implements IWebSignCertificate
 		publicKey_Algorithm_FriendlyName: string,
 		publicKey_Algorithm_OID: string)
 	{
-		this.id = id;
-		this.bodyBase64 = bodyBase64;
-		this.thumbprint = thumbprint;
-		this.validFromDate = validFromDate;
-		this.validToDate = validToDate;
-		this.subjectName = subjectName;
-		this.issuerName = issuerName;
-		this.hasPrivateKey = hasPrivateKey;
-		this.publicKey_Algorithm_FriendlyName = publicKey_Algorithm_FriendlyName;
-		this.publicKey_Algorithm_OID = publicKey_Algorithm_OID;
+		this.Id = id;
+		this.Library = library;
+		this.Device = device;
+		this.BodyBase64 = bodyBase64;
+		this.Thumbprint = thumbprint;
+		this.ValidFromDate = validFromDate;
+		this.ValidToDate = validToDate;
+		this.SubjectName = subjectName;
+		this.IssuerName = issuerName;
+		this.HasPrivateKey = hasPrivateKey;
+		this.PublicKey_Algorithm_FriendlyName = publicKey_Algorithm_FriendlyName;
+		this.PublicKey_Algorithm_OID = publicKey_Algorithm_OID;
 	}
-
-	public thumbprint: string;
-	public validFromDate: Date;
-	public validToDate: Date;
-	public subjectName: string;
-	public issuerName: string;
-	public hasPrivateKey: boolean;
-	public publicKey_Algorithm_FriendlyName: string;
-	public publicKey_Algorithm_OID: string;
 }

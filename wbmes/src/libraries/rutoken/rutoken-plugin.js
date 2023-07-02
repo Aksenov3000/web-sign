@@ -1,4 +1,4 @@
-export function getPlugin()
+export function getRutokenWrap()
 {
     return window.rutoken;
 }

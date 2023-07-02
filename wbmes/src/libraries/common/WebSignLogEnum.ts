@@ -1,6 +1,6 @@
 export enum WebSignLogEnum
 {
-	PluginNotFound=1,
+	PluginNotFound = 1,
 	CreatePluginObject=2,
 	GetPluginVersion=3,
 	GetCSPVersion=4,
@@ -12,5 +12,6 @@ export enum WebSignLogEnum
 	EnumCertificatesInStore=10,
 	GetCertificateFromStore=11,
 	EnumDevices=12,
-	EnumCertificatesInDevice=13
+	EnumCertificatesInDevice=13,
+	WrapNotFound = 14,
 }

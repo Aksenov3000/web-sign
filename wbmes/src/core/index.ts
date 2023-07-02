@@ -56,33 +56,51 @@ export default class WebSign
 		const cp = new WebSignCryptoPro();
 		cp.OnCertificateAdd.subscribe((certificate) =>
 		{
-			this.CertificateList.set(certificate.id, certificate);
+			this.CertificateList.set(certificate.Id, certificate);
 			this._OnCertificateAdd.dispatch(certificate);
 		});
 		cp.OnCertificateRemove.subscribe((certificate) =>
 		{
-			this.CertificateList.delete(certificate.id);
+			this.CertificateList.delete(certificate.Id);
 			this._OnCertificateRemove.dispatch(certificate);
 		});
 		cp.OnLog.subscribe((error) => this._OnLog.dispatch(error));
+
+		cp.Ready.then(() =>
+		{
+			alert('ready cp');
+		})
+			.catch((ex) =>
+			{
+				alert('not ready cp');
+			});
 		this.LibraryInstances.add(cp);
 
 		// register Rutoken
 		const rt = new WebSignRutoken();
 		rt.OnCertificateAdd.subscribe((certificate) =>
 		{
-			this.CertificateList.set(certificate.id, certificate);
+			this.CertificateList.set(certificate.Id, certificate);
 			this._OnCertificateAdd.dispatch(certificate);
 		});
 		rt.OnCertificateRemove.subscribe((certificate) =>
 		{
-			this.CertificateList.delete(certificate.id);
+			this.CertificateList.delete(certificate.Id);
 			this._OnCertificateRemove.dispatch(certificate);
 		});
 		rt.OnLog.subscribe((error) =>
 		{
 			this._OnLog.dispatch(error);
 		});
+		rt.Ready.then(() =>
+		{
+			alert('ready rt');
+		})
+			.catch((ex) =>
+			{
+				alert('not ready rt');
+			});
+
 		this.LibraryInstances.add(rt);
 	}
 

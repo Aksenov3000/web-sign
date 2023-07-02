@@ -51,7 +51,7 @@
             ws.OnCertificateAdd.subscribe((certificate, eventManagement) =>
 			{
 				var tx = document.getElementById("txDynCerts");
-				tx.value = tx.value + "\n[" + certificate.id + "]";
+				tx.value = tx.value + "\n[" + certificate.Id + "]";
 				eventManagement.propogationStopped = false;
 			});
             ws.OnLog.subscribe((log) =>

@@ -31,6 +31,8 @@ export class WebSignCryptoPro implements IWebSign
 	private CadesPlugin: CadesPluginClass;
 	private PluginInfo: CryptoProPluginInfo = new CryptoProPluginInfo();
 
+	private TimerInterval: ReturnType<typeof setInterval> | number = 0;
+
 	public LibraryName = 'CryptoPro';
 
 	/** 
@@ -58,10 +60,10 @@ export class WebSignCryptoPro implements IWebSign
 	*/
 	public get OnLog() { return this._OnLog.asEvent(); }
 
-
-
+	/** Main constructor */
 	constructor()
 	{
+		// get plugin wrapper
 		this.CadesPlugin = getPlugin();
 	}
 
@@ -70,63 +72,80 @@ export class WebSignCryptoPro implements IWebSign
 		this._OnLog.dispatchAsync(new WebSignLog(this.LibraryName, level, type, exception));
 	}
 
-	private getPluginInfo(next_function: () => void): void
+	/** Promise to start working with this class */
+	public get Ready(): Promise<void>
 	{
-		if (!this.CadesPlugin)
+		return new Promise<void>((resolve, reject) =>
 		{
-			this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.PluginNotFound);
-			return;
-		}
-
-		this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.LoadPluginObject);
-		this.CadesPlugin.then(
-			async () => // fullfilled
+			if (!this.CadesPlugin)
 			{
-				try
+				this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.WrapNotFound);
+				reject('CryptoPro plugin wrapper not found');
+				return;
+			}
+
+			this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.LoadPluginObject);
+			this.CadesPlugin.then(
+				async () => // fullfilled
 				{
-					// CreatePluginObject
-					this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.CreatePluginObject);
-					const oAbout: IAbout3 = await this.CadesPlugin.CreateObjectAsync('CAdESCOM.About');
+					try
+					{
+						// CreatePluginObject
+						this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.CreatePluginObject);
+						const oAbout: IAbout3 = await this.CadesPlugin.CreateObjectAsync('CAdESCOM.About');
 
-					// Get Plugin Version
-					this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.GetPluginVersion);
-					let ver: IVersion = await oAbout.PluginVersion;
-					this.PluginInfo.pluginVersion = (await ver.MajorVersion) + '.' + (await ver.MinorVersion) + '.' + (await ver.BuildVersion);
+						// Get Plugin Version
+						this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.GetPluginVersion);
+						let ver: IVersion = await oAbout.PluginVersion;
+						this.PluginInfo.pluginVersion = (await ver.MajorVersion) + '.' + (await ver.MinorVersion) + '.' + (await ver.BuildVersion);
 
-					// Get CSP Version
-					this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.GetCSPVersion);
-					ver = await oAbout.CSPVersion('', 80);
-					this.PluginInfo.cspVersion = (await ver.MajorVersion) + '.' + (await ver.MinorVersion) + '.' + (await ver.BuildVersion);
-					try { this.PluginInfo.cspName = await oAbout.CSPName(80); } catch (e) { this.PluginInfo.cspName = ''; }
+						// Get CSP Version
+						this.Log(WebSignLogLevelEnum.Debug, WebSignLogEnum.GetCSPVersion);
+						ver = await oAbout.CSPVersion('', 80);
+						this.PluginInfo.cspVersion = (await ver.MajorVersion) + '.' + (await ver.MinorVersion) + '.' + (await ver.BuildVersion);
+						try { this.PluginInfo.cspName = await oAbout.CSPName(80); } catch (e) { this.PluginInfo.cspName = ''; }
 
-					// вызываем следующую функцию в цепочке
-					if (next_function) next_function();
-				}
-				catch (ex)
+						// End of initialization
+						resolve();
+					}
+					catch (ex)
+					{
+						this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.UnexpectedException, ex);
+						reject('CryptoPro plugin failed to load - ' + ex);
+					}
+				},
+				(ex) => // rejected
 				{
 					this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.UnexpectedException, ex);
+					reject('CryptoPro plugin failed to load - ' + ex);
 				}
-			},
-			(ex) => // rejected
-			{
-				this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.UnexpectedException, ex);
-			}
-		);
+			);
+		});
 	}
-
 
 	public StartCertificateScan()
 	{
-		this.CadesPlugin.then(
-			() => // fullfilled
-			{
-				this.getPluginInfo(() => this.GetCertificateList());     ///////////////////////  TODO неправильное смешивание синхронных функций и асинхронных
-			},
-			(ex) => // rejected
-			{
-				this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.UnexpectedException, ex);
-			}
-		);
+		if (!this.CadesPlugin)
+		{
+			this.Log(WebSignLogLevelEnum.Error, WebSignLogEnum.LoadPluginObject);
+			return;
+		}
+		this.TimerInterval = setInterval(async () => await this.GetCertificateList(), 500);
+	}
+
+	public StopCertificateScan()
+	{
+		clearInterval(this.TimerInterval);
+	}
+
+	public SignHash(certificate: IWebSignCertificate, algorithmOid: string, hashAsHex: string): Promise<IWebSignSignature>
+	{
+		return new Promise<IWebSignSignature>((resolve, reject) =>
+		{
+			if (!this.CertificateList) reject('dummy error');
+			resolve(new WebSignSignature(certificate, algorithmOid, hashAsHex, 'Signature cp'));
+			return;
+		});
 	}
 
 	private async GetCertificateList()
@@ -159,8 +178,10 @@ export class WebSignCryptoPro implements IWebSign
 				const publicKeyAlgorithm = await (await cert.PublicKey()).Algorithm;
 				const thumbprint: string = await cert.Thumbprint;
 
-				this._OnCertificateAdd.dispatchAsync(new WebSignCertificate(
+				const certObject: IWebSignCertificate = new WebSignCertificate(
 					this.LibraryName + '|' + deviceName + '|' + thumbprint,
+					this.LibraryName,
+					deviceName,
 					await cert.Export(this.CadesPlugin.CADESCOM_ENCODE_BASE64),
 					thumbprint,
 					new Date(await cert.ValidFromDate),
@@ -170,7 +191,28 @@ export class WebSignCryptoPro implements IWebSign
 					await cert.HasPrivateKey(),
 					await publicKeyAlgorithm.FriendlyName,
 					await publicKeyAlgorithm.Value
-				));
+				)
+
+				let list: WebSignCertificate[] = this.CertificateList.get(deviceName);
+				if (list === undefined)
+				{
+					list = [];
+					this.CertificateList.set(deviceName, list);
+				}
+				let finded = false;
+				for (let item of list)
+				{
+					if (item.Thumbprint === thumbprint)
+					{
+						finded = true;
+						break;
+					}
+				}
+				if (!finded)
+				{
+					list.push(certObject);
+					this._OnCertificateAdd.dispatchAsync(certObject);
+				}
 			}
 		}
 		catch (ex)
@@ -181,20 +223,5 @@ export class WebSignCryptoPro implements IWebSign
 		{
 			if (oStore) await oStore.Close();
 		}
-	}
-
-	public StopCertificateScan()
-	{
-		// do nothing
-	}
-
-	public SignHash(certificate: IWebSignCertificate, algorithmOid: string, hashAsHex: string): Promise<IWebSignSignature>
-	{
-		return new Promise<IWebSignSignature>((resolve, reject) =>
-		{
-			if (!this.CertificateList) reject('dummy error');
-			resolve(new WebSignSignature(certificate, algorithmOid, hashAsHex, 'Signature cp'));
-			return;
-		});
 	}
 }

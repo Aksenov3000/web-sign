@@ -30,6 +30,9 @@ export interface IWebSign
 	*/
 	get OnLog(): ISimpleEvent<IWebSignLog>;
 
+	/** Promise. Call this to strart working with this class */
+	get Ready(): Promise<void>;
+
 	/** Start searching for available certificates. */
 	StartCertificateScan(): void;
 
